@@ -1,6 +1,5 @@
 import db from '../db';
 
-
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { date } = req.query;
@@ -11,9 +10,9 @@ export default async function handler(req, res) {
 
     try {
       const query = `
-        SELECT name, time_taken 
-        FROM leaderboard 
-        WHERE puzzle_date = $1 
+        SELECT name, time_taken
+        FROM leaderboard
+        WHERE puzzle_date = $1
         ORDER BY time_taken ASC
       `;
       const { rows } = await db.query(query, [date]);
@@ -60,3 +59,7 @@ export default async function handler(req, res) {
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
+
+// export default function handler(req, res) {
+//   return res.status(200).json({ message: 'Leaderboard works!' });
+// }
