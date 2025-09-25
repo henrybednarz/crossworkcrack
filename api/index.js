@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const puzzleRoutes = require('./routes/puzzle.routes');
-const leaderboardRoutes = require('./routes/leaderboard.routes');
+const puzzleRoutes = require('./puzzle');
+const leaderboardRoutes = require('./leaderboard');
 const app = express();
 
 // --- Middleware ---
