@@ -1,22 +1,8 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const puzzleRoutes = require('./puzzle');
-const leaderboardRoutes = require('./leaderboard');
-const app = express();
+export default function handler(req, res) {
+  if (req.method === 'GET') {
+    return res.status(200).send('API is running successfully.');
+  }
 
-// --- Middleware ---
-app.use(cors());
-app.use(express.json());
-
-// --- API Routes ---
-app.use('/puzzle', puzzleRoutes);
-app.use('/leaderboard', leaderboardRoutes);
-
-// Basic root route for health checks
-app.get('/', (req, res) => {
-  res.send('Crossword API is running! 🚀');
-});
-
-// --- ADD: Export the Express app for Vercel ---
-module.exports = app;
+  res.setHeader('Allow', ['GET']);
+  res.status(405).end(`Method ${req.method} Not Allowed`);
+}
