@@ -8,13 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let secondsElapsed = 0;
     let isGameStarted = false;
     let isGameFinished = false;
+    const API_URL = 'http://localhost:3000'
 
     // --- API DATA (Mocked) ---
-    // In a real app, this would be fetched from your API endpoint
-    const puzzleJSON = {
-      "grid": [[{"isBlack":false,"answer":"B","number":"1"},{"isBlack":false,"answer":"O","number":"2"},{"isBlack":false,"answer":"B","number":"3"},{"isBlack":true,"answer":null,"number":null},{"isBlack":true,"answer":null,"number":null}],[{"isBlack":false,"answer":"A","number":"4"},{"isBlack":false,"answer":"R","number":null},{"isBlack":false,"answer":"E","number":null},{"isBlack":false,"answer":"A","number":"5"},{"isBlack":true,"answer":null,"number":null}],[{"isBlack":false,"answer":"B","number":"6"},{"isBlack":false,"answer":"A","number":null},{"isBlack":false,"answer":"L","number":null},{"isBlack":false,"answer":"L","number":null},{"isBlack":false,"answer":"S","number":"7"}],[{"isBlack":false,"answer":"A","number":"8"},{"isBlack":false,"answer":"L","number":null},{"isBlack":false,"answer":"L","number":null},{"isBlack":false,"answer":"O","number":null},{"isBlack":false,"answer":"T","number":null}],[{"isBlack":true,"answer":null,"number":null},{"isBlack":false,"answer":"B","number":"9"},{"isBlack":false,"answer":"E", "number":null},{"isBlack":false,"answer":"E","number":null},{"isBlack":false,"answer":"S","number":null}]],
-      "clues": {"across":[{"number":"1","clue":"Barker who hosted \"The Price Is Right\""},{"number":"4","clue":"(Base x height) / 2, for a triangle"},{"number":"6","clue":"Bouncy toys in a playroom"},{"number":"8","clue":"Budget for"},{"number":"9","clue":"Busy buzzers ... and letters found at the start of every clue in this puzzle"}],"down":[{"number":"1","clue":"Baked dessert soaked in rum"},{"number":"2","clue":"Big name in dental products"},{"number":"3","clue":"\"Beauty and the Beast\" protagonist"},{"number":"5","clue":"Balm ingredient with soothing properties"},{"number":"7","clue":"Bourbon and Beale: Abbr."}]}
-    };
+    const puzzleJSON = {'grid': [[{'isBlack': false, 'answer': 'S', 'number': '1'}, {'isBlack': false, 'answer': 'C', 'number': '2'}, {'isBlack': false, 'answer': 'U', 'number': '3'}, {'isBlack': false, 'answer': 'M', 'number': '4'}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}], [{'isBlack': false, 'answer': 'A', 'number': '5'}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'Y', 'number': null}, {'isBlack': false, 'answer': 'O', 'number': '6'}, {'isBlack': false, 'answer': 'U', 'number': '7'}], [{'isBlack': false, 'answer': 'C', 'number': '8'}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'N', 'number': null}, {'isBlack': false, 'answer': 'E', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}], [{'isBlack': false, 'answer': 'S', 'number': '9'}, {'isBlack': false, 'answer': 'P', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'R', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}], [{'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': false, 'answer': 'S', 'number': '10'}, {'isBlack': false, 'answer': 'H', 'number': null}, {'isBlack': false, 'answer': 'H', 'number': null}]], 'clues': {'across': [{'number': '1', 'clue': 'Pond gunk'}, {'number': '5', 'clue': 'With 8-Across, like an unlimited buffet'}, {'number': '8', 'clue': 'See 5-Across'}, {'number': '9', 'clue': 'Opponent of Athens in the Peloponnesian War'}, {'number': '10', 'clue': '"Keep it down!"'}], 'down': [{'number': '1', 'clue': 'Outs that advance the runner, in baseball lingo'}, {'number': '2', 'clue': 'Put your hands together'}, {'number': '3', 'clue': 'Bone on the same side of the arm as the pinky'}, {'number': '4', 'clue': 'Mike who voiced Shrek'}, {'number': '6', 'clue': "Hippocratic ___ (doctor's pledge)"}, {'number': '7', 'clue': 'State with license plates that read "Greatest Snow on Earth"'}]}}
 
     const leaderboardJSON = [
         { name: 'Alice', time: 45 },
@@ -30,13 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerDisplay = document.getElementById('timer');
     const leaderboardList = document.getElementById('leaderboard-list');
     const activeClueBar = document.getElementById('active-clue-bar');
-    // Remove modal elements
-    // Add leaderboard window elements
+
     const leaderboardWindow = document.getElementById('leaderboard-window');
     const closeLeaderboardWindowBtn = document.getElementById('close-leaderboard-window');
     const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
 
-    // --- LEADERBOARD WINDOW EVENT HANDLERS ---
     closeLeaderboardWindowBtn.addEventListener('click', () => {
         leaderboardWindow.classList.remove('active');
     });
@@ -54,21 +49,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const CACHE_KEY_TIMER = 'crossword_timer';
 
     // --- INITIALIZATION ---
-    function init() {
-        // In a real app:
-        // puzzleData = await fetch('/api/puzzle').then(res => res.json());
-        puzzleData = puzzleJSON;
+    async function init() {
+        puzzleData = await fetch(API_URL + '/puzzle/2025-09-24').then(res => res.json());
+        // puzzleData = puzzleJSON
+        const gridRows = puzzleData.grid.length;
+        const gridCols = puzzleData.grid[0].length;
+        document.documentElement.style.setProperty('--grid-rows', gridRows);
+        document.documentElement.style.setProperty('--grid-cols', gridCols);
 
         const gridSize = puzzleData.grid.length;
         document.documentElement.style.setProperty('--grid-size', gridSize);
-
         document.getElementById('puzzle-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         renderGrid();
         renderClues();
         renderLeaderboard();
 
-        // Load cached state if available
         loadCachedState();
 
         // Find the first playable cell
@@ -336,9 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isValidCell(nextPos.row, nextPos.col)) {
-            activeCell = { row: nextPos.row, col: nextPos.col };
-            updateActiveHighlights();
+            activeCell = { row: nextPos.row, col: nextPos.col }
         }
+        updateActiveHighlights();
     }
 
     // --- UI/STATE UPDATES ---
@@ -347,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('active', 'active-word'));
         document.querySelectorAll('#clues-container li').forEach(c => c.classList.remove('active-clue'));
 
-        // Set active cell
         const activeCellEl = document.querySelector(`.grid-cell[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
         if(activeCellEl) {
             activeCellEl.classList.add('active');
@@ -382,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
             r++;
         }
 
-        // Collect all cells in the word
         while (isValidCell(r, c) && !puzzleData.grid[r][c].isBlack) {
             cells.push({r, c});
             if (dir === 'across') c++; else r++;
@@ -415,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // If we get here, the puzzle is solved!
         stopGame();
         setTimeout(() => {
             // Remove alert, show leaderboard window instead
@@ -432,9 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function postScore(name, time) {
         console.log(`Posting score: ${name} - ${time} seconds`);
         // In a real app:
-        /*
         try {
-            const response = await fetch('/api/leaderboard', {
+            const response = await fetch(API_URL + '/leaderboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, time })
@@ -446,13 +438,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Failed to post score:', error);
         }
-        */
     }
 
     // --- UTILITY FUNCTIONS ---
     function isValidCell(r, c) {
-        const size = puzzleData.grid.length;
-        return r >= 0 && r < size && c >= 0 && c < size;
+        const rows = puzzleData.grid.length;
+        const cols = puzzleData.grid[0].length
+        return r >= 0 && r < rows && c >= 0 && c < cols;
     }
 
     function formatTime(totalSeconds) {

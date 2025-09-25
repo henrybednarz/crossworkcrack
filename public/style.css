@@ -1,6 +1,7 @@
 /* General Styles & Fonts */
 :root {
-    --grid-size: 5;
+    --grid-rows: 5;
+    --grid-cols: 5;
     --cell-size: min(16vw, 70px);
 
     /* NYT Mini-inspired palette */
@@ -62,8 +63,8 @@ body {
 /* Crossword Grid */
 #grid-container {
     display: grid;
-    grid-template-columns: repeat(var(--grid-size), var(--cell-size));
-    grid-template-rows: repeat(var(--grid-size), var(--cell-size));
+    grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
+    grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
     border: 2px solid var(--border-color);
     background-color: var(--black-cell-bg);
     gap: 1px;
