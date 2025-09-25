@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Mini Crossword</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <header id="header-bar">
+        <div class="header-title">
+            <h1>Who tf paywalled the mini?</h1>
+            <p id="puzzle-date"></p>
+        </div>
+        <button id="show-leaderboard-btn" type="button">🏆</button>
+    </header>
+
+    <div id="main-panel">
+        <section id="crossword-section">
+            <div id="controls">
+                <span id="timer">00:00</span>
+            </div>
+            <div id="grid-container"></div>
+            <div id="active-clue-bar"></div> <!-- Add this line -->
+        </section>
+        <section id="clues-container">
+            <div>
+                <h3>Across</h3>
+                <ul id="across-clues"></ul>
+            </div>
+            <br>
+            <div>
+                <h3>Down</h3>
+                <ul id="down-clues"></ul>
+            </div>
+        </section>
+    </div>
+</div>
+<!-- Add full-window leaderboard -->
+<div id="leaderboard-window" class="leaderboard-window">
+    <div class="leaderboard-content">
+        <div class="leaderboard-title">
+            <h2>Leaderboard 🏆</h2>
+            <button id="close-leaderboard-window" class="leaderboard-close" type="button" title="Close">✕</button>
+        </div>
+        <div class="leaderboard-header">
+            <span class="rank-col">Rank</span>
+            <span class="name-col">Name</span>
+            <span class="time-col">Time</span>
+        </div>
+        <ol id="leaderboard-list"></ol>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
