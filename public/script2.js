@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURATION & CONSTANTS ---
     const CONFIG = {
-        API_URL: 'http://localhost:3000',
+        API_URL: 'http://127.0.0.1:8000',
         CACHE_KEY_GRID: 'crossword_user_grid',
         CACHE_KEY_TIMER: 'crossword_timer',
         DIRECTION_ACROSS: 'across',
