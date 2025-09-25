@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZATION ---
     async function init() {
-        puzzleData = await fetch('/puzzle/2025-09-24').then(res => res.json());
+        puzzleData = await fetch('/api/puzzle/2025-09-24').then(res => res.json());
         console.log(puzzleData)
         const gridRows = puzzleData.grid.length;
         const gridCols = puzzleData['grid'][0].length;
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Posting score: ${name} - ${time} seconds`);
         // In a real app:
         try {
-            const response = await fetch(API_URL + '/leaderboard', {
+            const response = await fetch('/api/leaderboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, time })
