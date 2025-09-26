@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let puzzleData = null;
     let leaderboardData = null;
-    let todayDate = null;
+    let todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     let userGrid = [];
     let playerName = null;
     let activeCell = { row: 0, col: 0 };
@@ -35,9 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CACHE KEYS ---
     const CACHE_KEY_GRID = 'crossword_user_grid';
+    const CACHE_KEY_PUZZLE = 'crossword_puzzle_data'
     const CACHE_KEY_TIMER = 'crossword_timer';
     const CACHE_KEY_DATE = 'crossword_date';
     const CACHE_KEY_NAME = 'player_name';
+    const CACHE_KEY_WON = 'crossword_won'
 
     // --- EVENT LISTENERS ---
     closeLeaderboardWindowBtn.addEventListener('click', () => {
@@ -65,45 +67,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // New: Handle starting the game
     startGameBtn.addEventListener('click', () => {
         preGameOverlay.classList.remove('active');
         mainPanel.classList.add('active'); // Show the puzzle
-        startGame(); // Start the timer and game logic
+        if (localStorage.getItem(CACHE_KEY_WON) !== "true"){
+            startGame();
+        }
+
     });
 
 
     async function init() {
-        todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-
-        // Fetch data
-        puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
+        loadCachedState()
+        if (!puzzleData) {
+            const puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
+            userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
+            localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
+        }
         leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
 
-        // CHANGE: Enable start button now that data is loaded
         startGameBtn.disabled = false;
-        startGameBtn.textContent = 'Start Puzzle';
+        startGameBtn.textContent = localStorage.getItem(CACHE_KEY_WON) === "true" ? 'View Puzzle' : 'Start Puzzle';
 
-        userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
-
-        // Set up grid dimensions
         const gridRows = puzzleData.grid.length;
         const gridCols = puzzleData.grid[0].length;
         document.documentElement.style.setProperty('--grid-rows', gridRows);
         document.documentElement.style.setProperty('--grid-cols', gridCols);
         document.getElementById('puzzle-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Check for player name
-        const cachedName = localStorage.getItem(CACHE_KEY_NAME);
-        if (cachedName) {
-            playerName = cachedName;
+        if (playerName) {
             preGameOverlay.classList.add('active');
         } else {
             nameModal.classList.add('active');
         }
 
-        // Load puzzle state and render
-        loadCachedState();
         renderGrid();
         renderClues();
         renderLeaderboard();
@@ -113,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let c = 0; c < gridCols; c++) {
                 if (!puzzleData.grid[r][c].isBlack) {
                     activeCell = { row: r, col: c };
-                    // Don't call updateActiveHighlights() here, wait for game to start
                     return;
                 }
             }
@@ -124,9 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem(CACHE_KEY_DATE) !== todayDate) {
             localStorage.removeItem(CACHE_KEY_GRID);
             localStorage.removeItem(CACHE_KEY_TIMER);
+            localStorage.removeItem(CACHE_KEY_WON)
+            localStorage.removeItem(CACHE_KEY_PUZZLE)
             localStorage.setItem(CACHE_KEY_DATE, todayDate)
             return;
         }
+
+        playerName = localStorage.getItem(CACHE_KEY_NAME);
+
+        const cachedPuzzle = localStorage.getItem(CACHE_KEY_PUZZLE);
+        if (cachedPuzzle) {
+            puzzleData = JSON.parse(cachedPuzzle);
+        }
+
         const cachedGrid = localStorage.getItem(CACHE_KEY_GRID);
         if (cachedGrid) {
             try {
@@ -136,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch {}
         }
-        // Load timer
+
         const cachedTimer = localStorage.getItem(CACHE_KEY_TIMER);
         if (cachedTimer && !isNaN(Number(cachedTimer))) {
             secondsElapsed = Number(cachedTimer);
@@ -159,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gridContainer.appendChild(loading);
             return;
         }
+
         puzzleData.grid.forEach((row, r) => {
             row.forEach((cellData, c) => {
                 const cell = document.createElement('div');
@@ -235,6 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
             leaderboardData
             .forEach((entry, idx) => {
                 const li = document.createElement('li');
+                if (playerName && entry.name === playerName) {
+                    li.classList.add('current-player');
+                }
                 li.innerHTML = `
                     <span class="rank">${idx + 1}</span>
                     <span class="name">${entry.name}</span>
@@ -448,9 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TIMER LOGIC ---
     function startGame() {
-        if (isGameStarted) return; // Prevent starting twice
+        if (isGameStarted) return;
         isGameStarted = true;
-        updateActiveHighlights(); // Set initial focus and highlights now that game has started
+        updateActiveHighlights();
         timerInterval = setInterval(() => {
             secondsElapsed++;
             timerDisplay.textContent = formatTime(secondsElapsed);
@@ -465,6 +475,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- WIN CONDITION & SUBMISSION ---
     function checkWin() {
+        if (!isGameStarted) {
+            return
+        }
         for (let r = 0; r < puzzleData.grid.length; r++) {
             for (let c = 0; c < puzzleData.grid[r].length; c++) {
                 if (!puzzleData.grid[r][c].isBlack && userGrid[r][c] !== puzzleData.grid[r][c].answer) {
@@ -476,8 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
         stopGame();
         setTimeout(() => {
             postScore(playerName, secondsElapsed); // Use playerName variable
-            localStorage.removeItem(CACHE_KEY_GRID);
-            localStorage.removeItem(CACHE_KEY_TIMER);
+            localStorage.setItem(CACHE_KEY_WON, "true")
+            saveCachedState()
             leaderboardWindow.classList.add('active');
             renderLeaderboard();
         }, 100);

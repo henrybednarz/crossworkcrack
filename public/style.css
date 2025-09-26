@@ -19,7 +19,6 @@
     --border-color: #222222;
 }
 
-/* ADDED: Universal box-sizing for predictable layouts */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -29,25 +28,24 @@ body {
     background-color: var(--main-bg);
     color: var(--font-color);
     margin: 0;
-    padding: 1rem;
-    padding-top: var(--header-height); /* CHANGED: Dynamic padding for fixed header */
-    min-height: 100vh; /* ADDED: Ensure body fills viewport */
+    padding: var(--header-height) 1rem 1rem;
+    min-height: 100vh;
 }
 
-/* Main Game Layout */
 #game-container {
     display: flex;
     flex-direction: column;
+    padding-top: 1rem;
     gap: 2rem;
     max-width: 1000px;
     width: 100%;
-    margin: 0 auto; /* CHANGED: Centering the container */
+    margin: 0 auto;
 }
 
 #main-panel {
     display: none;
     flex-wrap: wrap; /* This is key for responsiveness */
-    gap: 2rem;
+    gap: 2.2rem;
     justify-content: center;
     align-items: flex-start; /* ADDED: Align items to the top */
 }
@@ -120,12 +118,10 @@ body {
     outline: none;
 }
 
-/* Clues and Leaderboard */
 #clues-container {
-    /* CHANGED: Flex properties for fluid wrapping */
-    flex: 1 1 300px; /* Grow, shrink, with a base size */
+    flex: 1 1 300px;
     min-width: 280px;
-    max-width: 100%; /* Allow it to take full width on small screens */
+    max-width: 100%;
 }
 
 
@@ -172,7 +168,7 @@ body {
     left: 0;
     width: 100vw;
     min-height: var(--header-height); /* ADDED: Use variable */
-    z-index: 5000;
+    z-index: 6000;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -198,7 +194,6 @@ body {
 #show-leaderboard-btn:hover { color: var(--accent-color); }
 
 
-/* Leaderboard Window */
 .leaderboard-window {
     display: none;
     position: fixed;
@@ -207,16 +202,19 @@ body {
     width: 100vw;
     height: calc(100vh - var(--header-height)); /* CHANGED: Use variable */
     background: var(--main-bg);
-    justify-content: center; /* CHANGED: Center content */
+    justify-content: center;
     align-items: flex-start; /* CHANGED: Align to top */
-    padding-top: 2rem; /* ADDED: Space from the top */
-    overflow-y: auto; /* ADDED: Allow scrolling if content is too tall */
+    padding-top: 2rem;
+    overflow-y: auto;
+    z-index: 5000;
 }
 
 .leaderboard-window.active { display: flex; }
 
 .leaderboard-content {
     background: var(--leaderboard-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     padding: 2.5rem;
     width: 90%; /* CHANGED: More responsive width */
     max-width: 480px; /* Increased max-width slightly */
@@ -272,8 +270,11 @@ body {
 
 #leaderboard-list li .rank { width: 60px; font-weight: bold; color: #888; }
 #leaderboard-list li .name { flex: 1; color: var(--font-color); }
-#leaderboard-list li .time { width: 80px; text-align: right; font-family: monospace; color: var(--leaderboard-accent); }
-
+#leaderboard-list li .time { width: 80px; text-align: right; font-family: monospace; color: var(--font-color); }
+#leaderboard-list li.current-player {
+    font-weight: bold;
+    border-bottom: 1px solid var(--font-color);
+}
 /* Generic Modal Styles */
 .modal-overlay {
     position: fixed;
@@ -328,10 +329,6 @@ body {
 .modal-content button:hover { background-color: var(--accent-color); }
 .modal-content button:disabled { background-color: #cccccc; cursor: not-allowed; }
 .modal-content button:disabled:hover { background-color: #cccccc; }
-
-
-/* Media Queries for fine-tuning */
-/* REMOVED: The 800px query is no longer needed for the main layout */
 
 @media (max-width: 600px) {
     body { padding: 0.5rem; padding-top: var(--header-height); }
