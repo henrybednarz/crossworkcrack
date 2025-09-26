@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let leaderboardData = null;
     let todayDate = null;
     let userGrid = [];
+    let playerName = null;
     let activeCell = { row: 0, col: 0 };
     let direction = 'across'; // 'across' or 'down'
     let timerInterval = null;
@@ -11,17 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGameStarted = false;
     let isGameFinished = false;
 
-    // --- API DATA (Mocked) ---
-    const puzzleJSON = {'grid': [[{'isBlack': false, 'answer': 'S', 'number': '1'}, {'isBlack': false, 'answer': 'C', 'number': '2'}, {'isBlack': false, 'answer': 'U', 'number': '3'}, {'isBlack': false, 'answer': 'M', 'number': '4'}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}], [{'isBlack': false, 'answer': 'A', 'number': '5'}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'Y', 'number': null}, {'isBlack': false, 'answer': 'O', 'number': '6'}, {'isBlack': false, 'answer': 'U', 'number': '7'}], [{'isBlack': false, 'answer': 'C', 'number': '8'}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'N', 'number': null}, {'isBlack': false, 'answer': 'E', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}], [{'isBlack': false, 'answer': 'S', 'number': '9'}, {'isBlack': false, 'answer': 'P', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'R', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}], [{'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': false, 'answer': 'S', 'number': '10'}, {'isBlack': false, 'answer': 'H', 'number': null}, {'isBlack': false, 'answer': 'H', 'number': null}]], 'clues': {'across': [{'number': '1', 'clue': 'Pond gunk'}, {'number': '5', 'clue': 'With 8-Across, like an unlimited buffet'}, {'number': '8', 'clue': 'See 5-Across'}, {'number': '9', 'clue': 'Opponent of Athens in the Peloponnesian War'}, {'number': '10', 'clue': '"Keep it down!"'}], 'down': [{'number': '1', 'clue': 'Outs that advance the runner, in baseball lingo'}, {'number': '2', 'clue': 'Put your hands together'}, {'number': '3', 'clue': 'Bone on the same side of the arm as the pinky'}, {'number': '4', 'clue': 'Mike who voiced Shrek'}, {'number': '6', 'clue': "Hippocratic ___ (doctor's pledge)"}, {'number': '7', 'clue': 'State with license plates that read "Greatest Snow on Earth"'}]}}
-
-    const leaderboardJSON = [
-        { name: 'Alice', time: 45 },
-        { name: 'Bob', time: 58 },
-        { name: 'Charlie', time: 72 }
-    ];
-
     // --- DOM ELEMENTS ---
     const gridContainer = document.getElementById('grid-container');
+    const mainPanel = document.getElementById('main-panel');
     const cluesContainer = document.getElementById('clues-container');
     const acrossCluesList = document.getElementById('across-clues');
     const downCluesList = document.getElementById('down-clues');
@@ -33,9 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeLeaderboardWindowBtn = document.getElementById('close-leaderboard-window');
     const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
 
+    // New Elements
+    const nameModal = document.getElementById('name-modal');
+    const nameForm = document.getElementById('name-form');
+    const nameInput = document.getElementById('name-input');
+    const preGameOverlay = document.getElementById('pre-game-overlay');
+    const startGameBtn = document.getElementById('start-game-btn');
+
+    // --- CACHE KEYS ---
+    const CACHE_KEY_GRID = 'crossword_user_grid';
+    const CACHE_KEY_TIMER = 'crossword_timer';
+    const CACHE_KEY_DATE = 'crossword_date';
+    const CACHE_KEY_NAME = 'player_name';
+
+    // --- EVENT LISTENERS ---
     closeLeaderboardWindowBtn.addEventListener('click', () => {
         leaderboardWindow.classList.remove('active');
     });
+
     showLeaderboardBtn.addEventListener('click', () => {
         if (leaderboardWindow.classList.contains('active')) {
             leaderboardWindow.classList.remove('active');
@@ -45,37 +53,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- STATE CACHE KEYS ---
-    const CACHE_KEY_GRID = 'crossword_user_grid';
-    const CACHE_KEY_TIMER = 'crossword_timer';
+    // New: Handle name submission
+    nameForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredName = nameInput.value.trim();
+        if (enteredName) {
+            playerName = enteredName;
+            localStorage.setItem(CACHE_KEY_NAME, playerName);
+            nameModal.classList.remove('active');
+            preGameOverlay.classList.add('active'); // Show pre-game screen after name is entered
+        }
+    });
 
-    // --- INITIALIZATION ---
+    // New: Handle starting the game
+    startGameBtn.addEventListener('click', () => {
+        preGameOverlay.classList.remove('active');
+        mainPanel.classList.add('active'); // Show the puzzle
+        startGame(); // Start the timer and game logic
+    });
+
+
     async function init() {
         todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+        // Fetch data
         puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
-        userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
         leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
+
+        // CHANGE: Enable start button now that data is loaded
+        startGameBtn.disabled = false;
+        startGameBtn.textContent = 'Start Puzzle';
+
+        userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
+
+        // Set up grid dimensions
         const gridRows = puzzleData.grid.length;
-        const gridCols = puzzleData['grid'][0].length;
+        const gridCols = puzzleData.grid[0].length;
         document.documentElement.style.setProperty('--grid-rows', gridRows);
         document.documentElement.style.setProperty('--grid-cols', gridCols);
-
-        const gridSize = puzzleData.grid.length;
-        document.documentElement.style.setProperty('--grid-size', gridSize);
         document.getElementById('puzzle-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+        // Check for player name
+        const cachedName = localStorage.getItem(CACHE_KEY_NAME);
+        if (cachedName) {
+            playerName = cachedName;
+            preGameOverlay.classList.add('active');
+        } else {
+            nameModal.classList.add('active');
+        }
+
+        // Load puzzle state and render
+        loadCachedState();
         renderGrid();
         renderClues();
         renderLeaderboard();
 
-        loadCachedState();
-
-        // Find the first playable cell
-        for(let r=0; r < gridSize; r++){
-            for(let c=0; c < gridSize; c++){
-                if(!puzzleData.grid[r][c].isBlack){
+        // Set initial active cell
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+                if (!puzzleData.grid[r][c].isBlack) {
                     activeCell = { row: r, col: c };
-                    updateActiveHighlights();
+                    // Don't call updateActiveHighlights() here, wait for game to start
                     return;
                 }
             }
@@ -83,7 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadCachedState() {
-        // Load user grid
+        if (localStorage.getItem(CACHE_KEY_DATE) !== todayDate) {
+            localStorage.removeItem(CACHE_KEY_GRID);
+            localStorage.removeItem(CACHE_KEY_TIMER);
+            localStorage.setItem(CACHE_KEY_DATE, todayDate)
+            return;
+        }
         const cachedGrid = localStorage.getItem(CACHE_KEY_GRID);
         if (cachedGrid) {
             try {
@@ -102,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveCachedState() {
+        localStorage.setItem(CACHE_KEY_DATE, todayDate)
         localStorage.setItem(CACHE_KEY_GRID, JSON.stringify(userGrid));
         localStorage.setItem(CACHE_KEY_TIMER, secondsElapsed.toString());
     }
@@ -109,7 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RENDER FUNCTIONS ---
     function renderGrid() {
         gridContainer.innerHTML = '';
-
+        if (puzzleData == null) {
+            const loading = document.createElement('p');
+            loading.innerHTML = 'Loading puzzle...';
+            gridContainer.appendChild(loading);
+            return;
+        }
         puzzleData.grid.forEach((row, r) => {
             row.forEach((cellData, c) => {
                 const cell = document.createElement('div');
@@ -132,11 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.classList.add('cell-input');
                     input.dataset.row = r;
                     input.dataset.col = c;
-                    // Restore cached value if available
+
                     if (userGrid[r] && userGrid[r][c]) {
                         input.value = userGrid[r][c];
                     }
-                    // Save state on input
+
                     input.addEventListener('input', () => {
                         userGrid[r][c] = input.value.toUpperCase();
                         saveCachedState();
@@ -151,6 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderClues() {
         acrossCluesList.innerHTML = '';
         downCluesList.innerHTML = '';
+
+        if (puzzleData == null) {
+            const loading = document.createElement('p');
+            loading.innerHTML = 'Loading puzzle...';
+            acrossCluesList.appendChild(loading);
+            downCluesList.appendChild(loading);
+            return;
+        }
+
         puzzleData.clues.across.forEach(clue => {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${clue.number}.</strong> ${clue.clue}`;
@@ -169,8 +227,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLeaderboard() {
         leaderboardList.innerHTML = '';
-        leaderboardData
-            .sort((a, b) => a.time_taken - b.time_taken)
+        if (leaderboardData === null || leaderboardData.length === 0) {
+            const empty = document.createElement('p');
+            empty.innerHTML = `No scores yet. Be the first!`
+            leaderboardList.appendChild(empty)
+        } else {
+            leaderboardData
             .forEach((entry, idx) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
@@ -180,10 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 leaderboardList.appendChild(li);
             });
+        }
+
     }
 
     // --- GAME LOGIC & EVENT HANDLERS ---
     gridContainer.addEventListener('click', (e) => {
+        if (!isGameStarted) return;
         const target = e.target.closest('.grid-cell');
         if (target && !target.classList.contains('black')) {
             const row = parseInt(target.dataset.row);
@@ -199,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     cluesContainer.addEventListener('click', (e) => {
+        if (!isGameStarted) return;
         const target = e.target.closest('li');
         if (target) {
             const { number, direction: newDirection } = target.dataset;
@@ -216,14 +282,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('keydown', (e) => {
-            if (isGameFinished) return;
+            if (isGameFinished || !isGameStarted) return;
             const { row, col } = activeCell;
             const inputEl = document.querySelector(`input[data-row='${row}'][data-col='${col}']`);
 
             // Letter input
             if (e.key.match(/^[a-zA-Z]$/)) {
                 e.preventDefault();
-                if (!isGameStarted) startGame();
                 inputEl.value = e.key.toUpperCase();
                 userGrid[row][col] = e.key.toUpperCase();
                 moveFocus(1);
@@ -265,6 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderActiveClue() {
         const wordCells = getWordCells(activeCell.row, activeCell.col, direction);
+        if (!wordCells.length) return;
         const startOfWord = wordCells[0];
         const clueNumber = puzzleData.grid[startOfWord.r][startOfWord.c].number;
         let clueText = '';
@@ -279,64 +345,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function moveFocus(delta) {
         let { row, col } = activeCell;
-        if (delta < 0) {
-            do {
-                if (direction === 'across') col += delta;
-                else row += delta;
-            } while (isValidCell(row, col) && puzzleData.grid[row][col].isBlack);
+        const gridRows = puzzleData.grid.length;
+        const gridCols = puzzleData.grid[0].length;
 
-            if (isValidCell(row, col)) {
+        let currentDirection = direction;
+
+        const maxAttempts = gridRows * gridCols * 2;
+
+        for (let i = 0; i < maxAttempts; i++) {
+            if (currentDirection === 'across') {
+                col += delta;
+                if (col >= gridCols) {
+                    col = 0;
+                    row++;
+                } else if (col < 0) {
+                    col = gridCols - 1;
+                    row--;
+                }
+            } else {
+                row += delta;
+                if (row >= gridRows) {
+                    row = 0;
+                    col++;
+                } else if (row < 0) {
+                    row = gridRows - 1;
+                    col--;
+                }
+            }
+
+            if (row < 0 || row >= gridRows || col < 0 || col >= gridCols) {
+                currentDirection = (currentDirection === 'across' ? 'down' : 'across');
+                if (delta === 1) { // Moving forward, wrap to the top-left.
+                    row = 0;
+                    col = 0;
+                } else { // Moving backward, wrap to the bottom-right.
+                    row = gridRows - 1;
+                    col = gridCols - 1;
+                }
+            }
+
+            if (!puzzleData.grid[row][col].isBlack && (delta === -1 || userGrid[row][col] === '')) {
+                direction = currentDirection;
                 activeCell = { row, col };
                 updateActiveHighlights();
-            }
-            return; // Exit function after moving backward
-        }
-
-        let nextPos = { row, col };
-        if (direction === 'across') {
-            nextPos.col++; // Try to move to the next cell on the right
-
-            if (!isValidCell(nextPos.row, nextPos.col) || puzzleData.grid[nextPos.row][nextPos.col].isBlack) {
-                nextPos.row++;    // Move down to the next row.
-                nextPos.col = -1; // Will be set to the first valid index if found.
-
-                while (isValidCell(nextPos.row, 0)) {
-                    // Find the index of the leftmost non-black cell in the current row.
-                    const firstValidIndex = puzzleData.grid[nextPos.row].findIndex(cell => !cell.isBlack);
-                    if (firstValidIndex !== -1) {
-                        nextPos.col = firstValidIndex; // Found it!
-                        break;
-                    }
-                    nextPos.row++; // This row was empty, try the next one.
-                }
-            }
-        } else {
-            nextPos.row++;
-
-            if (!isValidCell(nextPos.row, nextPos.col) || puzzleData.grid[nextPos.row][nextPos.col].isBlack) {
-                nextPos.col++;    // Move to the next column.
-                nextPos.row = -1; // Will be set to the first valid index if found.
-
-                while(isValidCell(0, nextPos.col)) {
-                    // Find the index of the topmost non-black cell by looping down the column.
-                    for (let r = 0; r < puzzleData.grid.length; r++) {
-                        if (!puzzleData.grid[r][nextPos.col].isBlack) {
-                            nextPos.row = r; // Found it!
-                            break;
-                        }
-                    }
-                    if (nextPos.row !== -1) {
-                        break;
-                    }
-                    nextPos.col++;
-                }
+                return;
             }
         }
-
-        if (isValidCell(nextPos.row, nextPos.col)) {
-            activeCell = { row: nextPos.row, col: nextPos.col }
-        }
-        updateActiveHighlights();
     }
 
     // --- UI/STATE UPDATES ---
@@ -348,7 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeCellEl = document.querySelector(`.grid-cell[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
         if(activeCellEl) {
             activeCellEl.classList.add('active');
-            activeCellEl.querySelector('input')?.focus();
+            // CHANGE: Add { preventScroll: true } to stop the page from jumping on mobile
+            activeCellEl.querySelector('input')?.focus({ preventScroll: true });
         }
 
         // Highlight the entire word and the corresponding clue
@@ -357,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector(`.grid-cell[data-row='${r}'][data-col='${c}']`)?.classList.add('active-word');
         });
 
+        if (!wordCells.length) return;
         const startOfWord = wordCells[0];
         const clueNumber = puzzleData.grid[startOfWord.r][startOfWord.c].number;
         if(clueNumber) {
@@ -368,6 +424,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getWordCells(startRow, startCol, dir) {
         const cells = [];
+        if (!isValidCell(startRow, startCol) || puzzleData.grid[startRow][startCol].isBlack) {
+            return [];
+        }
+
         let r = startRow, c = startCol;
 
         // Go to the start of the word
@@ -388,7 +448,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TIMER LOGIC ---
     function startGame() {
+        if (isGameStarted) return; // Prevent starting twice
         isGameStarted = true;
+        updateActiveHighlights(); // Set initial focus and highlights now that game has started
         timerInterval = setInterval(() => {
             secondsElapsed++;
             timerDisplay.textContent = formatTime(secondsElapsed);
@@ -413,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         stopGame();
         setTimeout(() => {
-            postScore('Player', secondsElapsed);
+            postScore(playerName, secondsElapsed); // Use playerName variable
             localStorage.removeItem(CACHE_KEY_GRID);
             localStorage.removeItem(CACHE_KEY_TIMER);
             leaderboardWindow.classList.add('active');
@@ -435,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (response.ok) {
                 leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
+                renderLeaderboard()
             }
         } catch (error) {
             console.error('Failed to post score:', error);
