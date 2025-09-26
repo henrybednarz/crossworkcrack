@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function init() {
         loadCachedState()
         if (!puzzleData) {
-            const puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
+            puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
             userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
             localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
         }
@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(CACHE_KEY_DATE, todayDate)
             return;
         }
-
         playerName = localStorage.getItem(CACHE_KEY_NAME);
 
         const cachedPuzzle = localStorage.getItem(CACHE_KEY_PUZZLE);
