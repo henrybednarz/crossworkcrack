@@ -81,8 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadCachedState()
         if (!puzzleData) {
             puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
-            userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
             localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
+        }
+        if (!userGrid) {
+            userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
         }
         leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
 
@@ -133,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const cachedGrid = localStorage.getItem(CACHE_KEY_GRID);
-        if (cachedGrid) {
+        if (cachedGrid && puzzleData) {
             try {
                 const parsedGrid = JSON.parse(cachedGrid);
                 if (Array.isArray(parsedGrid) && parsedGrid.length === puzzleData.grid.length) {
