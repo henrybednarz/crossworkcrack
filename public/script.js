@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let puzzleData = null;
+    let leaderboardData = null;
+    let todayDate = null;
     let userGrid = [];
     let activeCell = { row: 0, col: 0 };
     let direction = 'across'; // 'across' or 'down'
@@ -8,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let secondsElapsed = 0;
     let isGameStarted = false;
     let isGameFinished = false;
-    const API_URL = 'test.com'
 
     // --- API DATA (Mocked) ---
     const puzzleJSON = {'grid': [[{'isBlack': false, 'answer': 'S', 'number': '1'}, {'isBlack': false, 'answer': 'C', 'number': '2'}, {'isBlack': false, 'answer': 'U', 'number': '3'}, {'isBlack': false, 'answer': 'M', 'number': '4'}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}], [{'isBlack': false, 'answer': 'A', 'number': '5'}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'L', 'number': null}, {'isBlack': false, 'answer': 'Y', 'number': null}, {'isBlack': false, 'answer': 'O', 'number': '6'}, {'isBlack': false, 'answer': 'U', 'number': '7'}], [{'isBlack': false, 'answer': 'C', 'number': '8'}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'N', 'number': null}, {'isBlack': false, 'answer': 'E', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}], [{'isBlack': false, 'answer': 'S', 'number': '9'}, {'isBlack': false, 'answer': 'P', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}, {'isBlack': false, 'answer': 'R', 'number': null}, {'isBlack': false, 'answer': 'T', 'number': null}, {'isBlack': false, 'answer': 'A', 'number': null}], [{'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': true, 'answer': null, 'number': null}, {'isBlack': false, 'answer': 'S', 'number': '10'}, {'isBlack': false, 'answer': 'H', 'number': null}, {'isBlack': false, 'answer': 'H', 'number': null}]], 'clues': {'across': [{'number': '1', 'clue': 'Pond gunk'}, {'number': '5', 'clue': 'With 8-Across, like an unlimited buffet'}, {'number': '8', 'clue': 'See 5-Across'}, {'number': '9', 'clue': 'Opponent of Athens in the Peloponnesian War'}, {'number': '10', 'clue': '"Keep it down!"'}], 'down': [{'number': '1', 'clue': 'Outs that advance the runner, in baseball lingo'}, {'number': '2', 'clue': 'Put your hands together'}, {'number': '3', 'clue': 'Bone on the same side of the arm as the pinky'}, {'number': '4', 'clue': 'Mike who voiced Shrek'}, {'number': '6', 'clue': "Hippocratic ___ (doctor's pledge)"}, {'number': '7', 'clue': 'State with license plates that read "Greatest Snow on Earth"'}]}}
@@ -50,8 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZATION ---
     async function init() {
-        puzzleData = await fetch('/api/puzzle/2025-09-24').then(res => res.json());
-        console.log(puzzleData)
+        todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
+        userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
+        leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
         const gridRows = puzzleData.grid.length;
         const gridCols = puzzleData['grid'][0].length;
         document.documentElement.style.setProperty('--grid-rows', gridRows);
@@ -106,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RENDER FUNCTIONS ---
     function renderGrid() {
         gridContainer.innerHTML = '';
-        userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
 
         puzzleData.grid.forEach((row, r) => {
             row.forEach((cellData, c) => {
@@ -167,14 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLeaderboard() {
         leaderboardList.innerHTML = '';
-        leaderboardJSON
-            .sort((a, b) => a.time - b.time)
+        leaderboardData
+            .sort((a, b) => a.time_taken - b.time_taken)
             .forEach((entry, idx) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span class="rank">${idx + 1}</span>
                     <span class="name">${entry.name}</span>
-                    <span class="time">${formatTime(entry.time)}</span>
+                    <span class="time">${formatTime(entry.time_taken)}</span>
                 `;
                 leaderboardList.appendChild(li);
             });
@@ -401,8 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- WIN CONDITION & SUBMISSION ---
     function checkWin() {
-        for (let r = 0; r < userGrid.length; r++) {
-            for (let c = 0; c < userGrid[r].length; c++) {
+        for (let r = 0; r < puzzleData.grid.length; r++) {
+            for (let c = 0; c < puzzleData.grid[r].length; c++) {
                 if (!puzzleData.grid[r][c].isBlack && userGrid[r][c] !== puzzleData.grid[r][c].answer) {
                     return;
                 }
@@ -411,10 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         stopGame();
         setTimeout(() => {
-            // Remove alert, show leaderboard window instead
-            // alert(`Congratulations! You solved the puzzle in ${formatTime(secondsElapsed)}!`);
             postScore('Player', secondsElapsed);
-            // Clear cache on win
             localStorage.removeItem(CACHE_KEY_GRID);
             localStorage.removeItem(CACHE_KEY_TIMER);
             leaderboardWindow.classList.add('active');
@@ -424,16 +423,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function postScore(name, time) {
         console.log(`Posting score: ${name} - ${time} seconds`);
-        // In a real app:
         try {
-            const response = await fetch('/api/leaderboard', {
+            const response = await fetch(`/api/leaderboard/${todayDate}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, time })
+                body: JSON.stringify({
+                    name: name,
+                    puzzle_date: todayDate,
+                    time_taken: time
+                })
             });
             if (response.ok) {
-                console.log('Score posted successfully!');
-                // Optionally refresh leaderboard
+                leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
             }
         } catch (error) {
             console.error('Failed to post score:', error);

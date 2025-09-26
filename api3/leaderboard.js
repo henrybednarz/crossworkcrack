@@ -1,10 +1,8 @@
-const db = require('./db'); // Make sure the path to db is correct
+import db from '../db';
 
-// A single handler function that Vercel can execute
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    // --- GET Logic ---
-    const { date } = req.query; // Date now comes from query string: /api3/leaderboard?date=YYYY-MM-DD
+    const { date } = req.query;
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return res.status(400).json({ error: 'Invalid date format. Please use YYYY-MM-DD.' });
@@ -12,9 +10,9 @@ export default async function handler(req, res) {
 
     try {
       const query = `
-        SELECT name, time_taken 
-        FROM leaderboard 
-        WHERE puzzle_date = $1 
+        SELECT name, time_taken
+        FROM leaderboard
+        WHERE puzzle_date = $1
         ORDER BY time_taken ASC
       `;
       const { rows } = await db.query(query, [date]);
@@ -25,7 +23,6 @@ export default async function handler(req, res) {
     }
 
   } else if (req.method === 'POST') {
-    // --- POST Logic ---
     const { name, puzzle_date, time_taken } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim() === '' || !puzzle_date || typeof time_taken !== 'number') {
@@ -58,8 +55,11 @@ export default async function handler(req, res) {
     }
 
   } else {
-    // Handle other methods
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
+
+// export default function handler(req, res) {
+//   return res.status(200).json({ message: 'Leaderboard works!' });
+// }

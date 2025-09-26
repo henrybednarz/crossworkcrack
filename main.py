@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 
-API_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/2025-09-24.json"
+API_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/2025-09-25.json"
 load_dotenv()
 NYT_COOKIE = os.getenv("NYT_COOKIE")
-DATABASE_URL = os.getenv("DB_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def fetch_puzzle(api_url):
