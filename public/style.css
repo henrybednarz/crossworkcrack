@@ -331,10 +331,30 @@ body {
 .modal-content button:disabled:hover { background-color: #cccccc; }
 
 @media (max-width: 600px) {
-    body { padding: 0.5rem; padding-top: var(--header-height); }
-    #header-bar { padding: 0.7rem 1rem; }
-    #header-bar h1 { font-size: 1.5rem; }
-    .leaderboard-content { padding: 2rem 1.5rem; }
-    .rank-col, #leaderboard-list li .rank { width: 38px; }
-    .time-col, #leaderboard-list li .time { width: 60px; }
+    html, body {
+        height: 100dvh; /* Use dynamic viewport height for mobile */
+        overflow: hidden; /* This is the key to disabling page scroll */
+    }
+
+    #game-container {
+        height: calc(100dvh - var(--header-height)); /* Fill space below the header */
+        display: flex;
+        flex-direction: column;
+        padding-top: 0; /* Remove existing padding */
+    }
+
+    #main-panel {
+        flex-direction: column; /* Stack grid and clues vertically */
+        height: 100%;
+        gap: 0.5rem; /* Reduce the gap for a tighter fit */
+    }
+
+    #crossword-section {
+        flex-shrink: 0; /* Prevents this section from shrinking */
+        padding-bottom: 0.5rem;
+    }
+
+    #clues-container {
+        display: none;
+    }
 }

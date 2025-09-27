@@ -323,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
             moveFocus(e.shiftKey ? -1 : 1);
         }
 
-        // Arrow keys
         else if (e.key.startsWith('Arrow')) {
             e.preventDefault();
             let newRow = row, newCol = col;
@@ -406,7 +405,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI/STATE UPDATES ---
     function updateActiveHighlights() {
-        // Remove all previous highlights
         document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('active', 'active-word'));
         document.querySelectorAll('#clues-container li').forEach(c => c.classList.remove('active-clue'));
 
@@ -417,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
             activeCellEl.querySelector('input')?.focus({ preventScroll: true });
         }
 
-        // Highlight the entire word and the corresponding clue
         const wordCells = getWordCells(activeCell.row, activeCell.col, direction);
         wordCells.forEach(({r, c}) => {
             document.querySelector(`.grid-cell[data-row='${r}'][data-col='${c}']`)?.classList.add('active-word');
@@ -530,6 +527,5 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = (totalSeconds % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
     }
-
     init();
 });
