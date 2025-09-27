@@ -345,7 +345,7 @@ body {
 
 @media (max-width: 600px) {
     :root {
-        --cell-size: calc(95vw / var(--grid-cols));
+        --cell-size: calc(85vw / var(--grid-cols));
     }
 
     #header-bar {
