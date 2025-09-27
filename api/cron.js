@@ -20,14 +20,14 @@ export default async function handler(req, res) {
             VALUES ($1, $2)
             ON CONFLICT (puzzle_date) DO NOTHING;
         `;
-        const values = [todayDate, puzzleData];
+        const values = [dateString, puzzleData];
         const dbResult = await db.query(query, values);
 
         if (dbResult.rowCount > 0) {
-            console.log(`Successfully inserted puzzle for ${todayDate}`);
+            console.log(`Successfully inserted puzzle for ${dateString}`);
             res.status(200).json({ message: 'Daily puzzle fetched and saved' });
         } else {
-            console.log(`Puzzle for ${todayDate} already exists.`);
+            console.log(`Puzzle for ${dateString} already exists.`);
             res.status(200).json({ message: 'Puzzle already exists' });
         }
 
