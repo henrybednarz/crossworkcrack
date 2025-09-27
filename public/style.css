@@ -384,7 +384,7 @@ body {
         display: flex;
     }
     .keyboard-container {
-        display: flex;
+        display: none;
     }
     .keyboard-container.visible {
         display: flex;
