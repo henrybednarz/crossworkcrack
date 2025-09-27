@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     const input = document.createElement('input');
                     input.type = 'text';
+                    input.readOnly = true;
                     input.maxLength = 1;
                     input.classList.add('cell-input');
                     input.dataset.row = r;
