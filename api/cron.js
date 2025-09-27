@@ -1,12 +1,12 @@
 import db from "../db";
 
 export default async function handler(req, res) {
-    if (req.headers['authorization'] !== `Bearer balls1fortnite`) {
+    if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).end('Unauthorized');
     }
-    const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const dateString = new Date().toLocaleDateString('en-CA');
     try {
-        const crossword_request = await fetch(`https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/${todayDate}.json`);
+        const crossword_request = await fetch(`https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/${dateString}.json`);
 
         if (!crossword_request.ok) {
             console.log('Failed to fetch puzzle from NYT API');
