@@ -1,7 +1,7 @@
 import db from "../db";
 
 export default async function handler(req, res) {
-    const authHeader = req.headers.get('authorization');
+    const authHeader = req.headers['authorization'];
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).end('Unauthorized');
     }
