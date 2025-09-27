@@ -527,5 +527,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = (totalSeconds % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
     }
+
+    const customKeyboard = document.getElementById('custom-keyboard');
+
+    customKeyboard.addEventListener('click', (e) => {
+        // Only respond to clicks on the buttons themselves
+        const keyButton = e.target.closest('.keyboard-key');
+        if (!keyButton) return;
+
+        if (isGameFinished || !isGameStarted) return;
+
+        const key = keyButton.dataset.key;
+        const { row, col } = activeCell;
+        const inputEl = document.querySelector(`input[data-row='${row}'][data-col='${col}']`);
+
+        if (key === 'Backspace') {
+            if (inputEl.value === '') {
+                moveFocus(-1);
+                // After moving, get the new active cell's input
+                const prevInputEl = document.querySelector(`input[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
+                if (prevInputEl) {
+                    prevInputEl.value = '';
+                    userGrid[activeCell.row][activeCell.col] = '';
+                }
+            } else {
+                inputEl.value = '';
+                userGrid[row][col] = '';
+            }
+        } else if (key.match(/^[A-Z]$/)) { // A letter was pressed
+            inputEl.value = key;
+            userGrid[row][col] = key;
+            moveFocus(1);
+            checkWin();
+        }
+    });
+
     init();
 });
