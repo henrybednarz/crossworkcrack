@@ -331,6 +331,10 @@ body {
 .modal-content button:disabled:hover { background-color: #cccccc; }
 
 @media (max-width: 600px) {
+     :root {
+        --cell-size: calc(95vw / var(--grid-cols));
+    }
+
     html, body {
         height: 100dvh; /* Use dynamic viewport height for mobile */
         overflow: hidden; /* This is the key to disabling page scroll */
