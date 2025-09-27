@@ -459,6 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         if (isGameStarted) return;
         isGameStarted = true;
+        document.getElementById('custom-keyboard').classList.add('visible');
         updateActiveHighlights();
         timerInterval = setInterval(() => {
             secondsElapsed++;
@@ -469,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopGame() {
         isGameFinished = true;
+        document.getElementById('custom-keyboard').classList.remove('visible');
         clearInterval(timerInterval);
     }
 

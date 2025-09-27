@@ -352,12 +352,8 @@ body {
         min-height: 5vw;
     }
 
-    #main-panel {
-
-    }
-
-    #header-bar h1 { margin: 0; font-size: 1.5rem; font-weight: bold; }
-    #header-bar #puzzle-date { margin: 0; font-size: 0.75rem; }
+    #header-bar h1 { margin: 0; font-size: 1.2rem; font-weight: bold; }
+    #header-bar #puzzle-date { margin: 0; font-size: 0.675rem; }
 
     html, body {
         height: 100svh;
@@ -384,8 +380,13 @@ body {
     #main-panel.active ~ .keyboard-container {
         display: flex;
     }
-
+    #main-panel.active ~ .keyboard-container {
+        display: flex;
+    }
     .keyboard-container {
+        display: flex;
+    }
+    .keyboard-container.visible {
         display: flex;
     }
 
