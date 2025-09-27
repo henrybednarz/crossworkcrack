@@ -1,7 +1,8 @@
 import db from "../db";
 
 export default async function handler(req, res) {
-    if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return res.status(401).end('Unauthorized');
     }
     const dateString = new Date().toLocaleDateString('en-CA');
