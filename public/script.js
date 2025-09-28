@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame() {
         if (isGameStarted) return;
         isGameStarted = true;
+        window.scrollTo(0, 0)
         document.getElementById('custom-keyboard').classList.add('visible');
         updateActiveHighlights();
         timerInterval = setInterval(() => {

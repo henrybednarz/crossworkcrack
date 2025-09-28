@@ -399,6 +399,7 @@ body {
 
     .keyboard-container.visible {
         display: flex;
+        padding-bottom: 1rem;
     }
 
     .keyboard-row {
