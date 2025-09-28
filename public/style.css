@@ -3,9 +3,8 @@
     --grid-rows: 5;
     --grid-cols: 5;
     --cell-size: min(16vw, 70px);
-    --header-height: 4.6rem; /* ADDED: For dynamic spacing */
+    --header-height: 4.6rem;
 
-    /* NYT Mini-inspired palette */
     --main-bg: #f7f7f7;
     --cell-bg: #fff;
     --black-cell-bg: #222222;
@@ -191,7 +190,6 @@ body {
 }
 #show-leaderboard-btn:hover { color: var(--accent-color); }
 
-
 .leaderboard-window {
     display: none;
     position: fixed;
@@ -336,7 +334,7 @@ body {
     width: 100%;
     padding: 5px 2px;
     background-color: #d1d5db;
-    display: none; /* Hidden by default */
+    display: none;
     flex-direction: column;
     gap: 5px;
     z-index: 10000;
@@ -349,6 +347,7 @@ body {
 
     #header-bar {
         min-height: 5vw;
+        padding: 0.25rem 1.5rem;
         justify-content: space-between;
     }
 
@@ -384,9 +383,9 @@ body {
 
     #game-container {
         display: flex;
-        align-items: center;
-        padding-top: 0;
+        align-items: flex-start;
         height: calc(100svh - var(--header-height));
+        padding-top: 0;
     }
 
     #main-panel.active ~ .keyboard-container {
@@ -398,6 +397,7 @@ body {
     .keyboard-container {
         display: none;
     }
+
     .keyboard-container.visible {
         display: flex;
     }
@@ -410,25 +410,25 @@ body {
 
     .keyboard-key {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        font-size: 16px; /* Smaller font */
+        font-size: 16px;
         font-weight: 600;
-        height: 40px; /* Smaller height */
+        height: 40px;
         flex: 1;
-        max-width: 35px; /* Control max width for wider screens */
+        max-width: 35px;
         border: none;
         border-radius: 4px;
         background-color: #ffffff;
         color: #111827;
         cursor: pointer;
-        -webkit-tap-highlight-color: transparent; /* Disable tap highlight */
-        touch-action: manipulation; /* Prevent double-tap to zoom */
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
 
     .keyboard-key:active {
-        background-color: #a7d8ff; /* Active state color */
+        background-color: #a7d8ff;
     }
 
     .special-key {
-        flex: 1.5; /* Make backspace slightly wider */
+        flex: 1.5;
     }
 }
