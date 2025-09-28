@@ -14,7 +14,8 @@ export default async function handler(req, res) {
             return res.status(500).json({ message: 'Error fetching daily puzzle' });
         }
 
-        const puzzleData = await crossword_request.json();
+        const rawPuzzleData = await crossword_request.json();
+        const puzzleData = processPuzzleData(rawPuzzleData);
         const query = `
             INSERT INTO puzzles (puzzle_date, puzzle_data)
             VALUES ($1, $2)
@@ -36,3 +37,43 @@ export default async function handler(req, res) {
         res.status(500).json({ message: 'An internal server error occurred.' });
     }
 }
+
+const processPuzzleData = (apiData) => {
+  const puzzle = apiData.body[0];
+  const { width, height } = puzzle.dimensions;
+  const flatCells = puzzle.cells;
+
+  const grid = Array.from({ length: height }, (_, i) =>
+    Array.from({ length: width }, (_, j) => {
+      const cellData = flatCells[i * width + j];
+      if (cellData) {
+        return {
+          isBlack: false,
+          answer: cellData.answer || null,
+          number: cellData.label || null,
+        };
+      } else {
+        return {
+          isBlack: true,
+          answer: null,
+          number: null,
+        };
+      }
+    })
+  );
+
+  const clues = { across: [], down: [] };
+
+  for (const clueData of puzzle.clues) {
+    const direction = (clueData.direction || "").toLowerCase();
+
+    if (direction in clues) {
+      clues[direction].push({
+        number: clueData.label || null,
+        clue: clueData?.text?.[0]?.plain || null,
+      });
+    }
+  }
+
+  return { grid, clues };
+};
