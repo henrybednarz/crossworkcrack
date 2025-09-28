@@ -63,14 +63,12 @@ body {
     flex: 1 1 360px; /* Grow, shrink, with a base size */
 }
 
-/* Timer and Controls */
 #controls {
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--font-color);
 }
 
-/* Crossword Grid */
 #grid-container {
     display: grid;
     grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
@@ -362,8 +360,11 @@ body {
         margin: 0;
         padding: 0.125rem;
     }
+
     #controls {
-        ;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--font-color);
     }
 
     html, body {
@@ -373,10 +374,6 @@ body {
 
     #clues-container {
         display: none;
-    }
-
-    #timer {
-        font-size: 0.75rem
     }
 
     #main-panel {
