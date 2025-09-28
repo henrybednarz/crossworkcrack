@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameForm = document.getElementById('name-form');
     const nameInput = document.getElementById('name-input');
     const preGameOverlay = document.getElementById('pre-game-overlay');
+    const preGameMessage = document.getElementById('preGameMessage');
     const startGameBtn = document.getElementById('start-game-btn');
 
     // --- CACHE KEYS ---
@@ -78,19 +79,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function init() {
-        loadCachedState()
-        if (!puzzleData) {
-            puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
-            localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
-        }
-        if (!userGrid) {
-            userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
-        }
-        leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
+        try {
+            loadCachedState()
+            if (!puzzleData) {
+                puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
+                localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
+            }
+            if (!userGrid) {
+                userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
+            }
+            leaderboardData = await fetch(`/api/leaderboard/${todayDate}`).then(res => res.json());
 
-        startGameBtn.disabled = false;
-        startGameBtn.textContent = localStorage.getItem(CACHE_KEY_WON) === "true" ? 'View Puzzle' : 'Start Puzzle';
+            startGameBtn.disabled = false;
+            startGameBtn.textContent = localStorage.getItem(CACHE_KEY_WON) === "true" ? 'View Puzzle' : 'Start Puzzle';
+        } catch (error) {
+            console.error("Failed to initialize the puzzle:", error);
+            preGameMessage.innerHTML = 'Failed to load the puzzle.';
 
+        }
         const gridRows = puzzleData.grid.length;
         const gridCols = puzzleData.grid[0].length;
         document.documentElement.style.setProperty('--grid-rows', gridRows);
@@ -107,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderClues();
         renderLeaderboard();
 
-        // Set initial active cell
         for (let r = 0; r < gridRows; r++) {
             for (let c = 0; c < gridCols; c++) {
                 if (!puzzleData.grid[r][c].isBlack) {
