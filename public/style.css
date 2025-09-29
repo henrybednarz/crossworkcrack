@@ -387,6 +387,10 @@ body {
         padding-top: 0;
     }
 
+    .cell-input {
+        font-size: max(calc(var(--cell-size) / 2), 16px);
+    }
+
     #main-panel.active ~ .keyboard-container {
         display: flex;
     }

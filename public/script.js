@@ -1,3 +1,6 @@
+import { inject } from '@vercel/analytics';
+inject();
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let puzzleData = null;
@@ -417,8 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeCellEl = document.querySelector(`.grid-cell[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
         if(activeCellEl) {
             activeCellEl.classList.add('active');
-            // CHANGE: Add { preventScroll: true } to stop the page from jumping on mobile
-            activeCellEl.querySelector('input')?.focus({ preventScroll: true });
+            // activeCellEl.querySelector('input')?.focus({ preventScroll: true });
         }
 
         const wordCells = getWordCells(activeCell.row, activeCell.col, direction);
