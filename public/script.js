@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadCachedState()
             if (!puzzleData) {
                 puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
-                localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
+                // localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
             }
             if (!userGrid) {
                 userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
@@ -95,6 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Failed to initialize the puzzle:", error);
             preGameMessage.innerHTML = 'Failed to load the puzzle.';
+            localStorage.removeItem(CACHE_KEY_NAME)
+            localStorage.removeItem(CACHE_KEY_GRID);
+            localStorage.removeItem(CACHE_KEY_TIMER);
+            localStorage.removeItem(CACHE_KEY_WON)
+            localStorage.removeItem(CACHE_KEY_PUZZLE)
+            localStorage.setItem(CACHE_KEY_DATE, todayDate)
 
         }
         const gridRows = puzzleData.grid.length;
@@ -133,11 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         playerName = localStorage.getItem(CACHE_KEY_NAME);
-
-        const cachedPuzzle = localStorage.getItem(CACHE_KEY_PUZZLE);
-        if (cachedPuzzle) {
-            puzzleData = JSON.parse(cachedPuzzle);
-        }
 
         const cachedGrid = localStorage.getItem(CACHE_KEY_GRID);
         if (cachedGrid && puzzleData) {

@@ -269,7 +269,6 @@ body {
 #leaderboard-list li.current-player {
     font-weight: bold;
     border-bottom: 1px solid var(--font-color);
-    color: var(--active-word-bg);
 }
 /* Generic Modal Styles */
 .modal-overlay {

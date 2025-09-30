@@ -1,10 +1,10 @@
 import db from "../db";
 
 export default async function handler(req, res) {
-    const authHeader = req.headers['authorization'];
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return res.status(401).end('Unauthorized');
-    }
+    // const authHeader = req.headers['authorization'];
+    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    //     return res.status(401).end('Unauthorized');
+    // }
     const dateString = new Date().toLocaleDateString('en-CA');
     try {
 
@@ -24,6 +24,7 @@ export default async function handler(req, res) {
 
         const rawPuzzleData = await crossword_request.json();
         const puzzleData = JSON.stringify(processPuzzleData(rawPuzzleData));
+        console.log(puzzleData)
         const query = `
             INSERT INTO puzzles (puzzle_date, puzzle_data)
             VALUES ($1, $2)
@@ -54,17 +55,18 @@ const processPuzzleData = (apiData) => {
   const grid = Array.from({ length: height }, (_, i) =>
     Array.from({ length: width }, (_, j) => {
       const cellData = flatCells[i * width + j];
-      if (cellData) {
+      console.log(Object.keys(cellData).length)
+      if (Object.keys(cellData).length !== 0) {
         return {
-          isBlack: false,
-          answer: cellData.answer || null,
-          number: cellData.label || null,
+          'isBlack': false,
+          'answer': cellData.answer || null,
+          'number': cellData.label || null,
         };
       } else {
         return {
-          isBlack: true,
-          answer: null,
-          number: null,
+          'isBlack': true,
+          'answer': null,
+          'number': null,
         };
       }
     })
