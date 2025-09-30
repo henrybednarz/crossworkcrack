@@ -7,15 +7,23 @@ export default async function handler(req, res) {
     }
     const dateString = new Date().toLocaleDateString('en-CA');
     try {
-        const crossword_request = await fetch(`https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/${dateString}.json`);
+
+        const crossword_request = await fetch(`https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/${dateString}.json`, {
+            method: "GET",
+            headers: {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
+                'Referer': 'https://www.nytimes.com/crosswords/game/mini',
+                'Cookie': 'NYT-S=0^CB0SMQi6p7q8BhDotM3GBhoSMS0aaZRb5EXXDJPM3frt7ptEIIjWiWwqAh5DOI-95qwGQgAaQIQhnarSerGUdMIgPUmRmMoc3uaBTI5EsPWT2rY-Y6h3ojv6rbLDm63Y023_Pzl3PUXEGN75B3BbfljXpDj3SAI'
+            }
+        });
 
         if (!crossword_request.ok) {
-            console.log('Failed to fetch puzzle from NYT API');
             return res.status(500).json({ message: 'Error fetching daily puzzle' });
         }
 
         const rawPuzzleData = await crossword_request.json();
-        const puzzleData = processPuzzleData(rawPuzzleData);
+        const puzzleData = JSON.stringify(processPuzzleData(rawPuzzleData));
         const query = `
             INSERT INTO puzzles (puzzle_date, puzzle_data)
             VALUES ($1, $2)
