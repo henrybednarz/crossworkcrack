@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaderboardWindow = document.getElementById('leaderboard-window');
     const closeLeaderboardWindowBtn = document.getElementById('close-leaderboard-window');
     const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
+    const changePersonBtn = document.getElementById('change-person-btn');
 
     // New Elements
     const nameModal = document.getElementById('name-modal');
@@ -50,11 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
     showLeaderboardBtn.addEventListener('click', () => {
         if (leaderboardWindow.classList.contains('active')) {
             leaderboardWindow.classList.remove('active');
-        } else {
+        } else if (!nameModal.classList.contains('active')) {
             leaderboardWindow.classList.add('active');
             renderLeaderboard();
         }
     });
+
+    changePersonBtn.addEventListener('click', () => {
+        if (nameModal.classList.contains('active')) return;
+        nameModal.classList.add('active');
+        leaderboardWindow.classList.remove('active');
+        preGameOverlay.classList.remove('active');
+        localStorage.removeItem(CACHE_KEY_NAME);
+        playerName = null;
+    })
 
     // New: Handle name submission
     nameForm.addEventListener('submit', (e) => {
@@ -83,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadCachedState()
             if (!puzzleData) {
                 puzzleData = await fetch(`/api/puzzle/${todayDate}`).then(res => res.json());
-                // localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
+                localStorage.setItem(CACHE_KEY_PUZZLE, JSON.stringify(puzzleData))
             }
             if (!userGrid) {
                 userGrid = puzzleData.grid.map(row => row.map(cell => (cell.isBlack ? null : '')));
@@ -140,6 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         playerName = localStorage.getItem(CACHE_KEY_NAME);
 
+        const cachedPuzzle = localStorage.getItem(CACHE_KEY_PUZZLE);
+        if (cachedPuzzle) {
+            try {
+                puzzleData = JSON.parse(cachedPuzzle);
+            } catch {
+                localStorage.removeItem(CACHE_KEY_PUZZLE);
+            }
+        }
+
         const cachedGrid = localStorage.getItem(CACHE_KEY_GRID);
         if (cachedGrid && puzzleData) {
             try {
@@ -147,7 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (Array.isArray(parsedGrid) && parsedGrid.length === puzzleData.grid.length) {
                     userGrid = parsedGrid;
                 }
-            } catch {}
+            } catch {
+                localStorage.removeItem(CACHE_KEY_GRID);
+            }
         }
 
         const cachedTimer = localStorage.getItem(CACHE_KEY_TIMER);
