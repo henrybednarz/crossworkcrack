@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
     const changePersonBtn = document.getElementById('change-person-btn');
 
-    // New Elements
     const nameModal = document.getElementById('name-modal');
     const nameForm = document.getElementById('name-form');
     const nameInput = document.getElementById('name-input');
@@ -66,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playerName = null;
     })
 
-    // New: Handle name submission
     nameForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const enteredName = nameInput.value.trim();
@@ -465,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let r = startRow, c = startCol;
 
-        // Go to the start of the word
         if (dir === 'across') {
             while (c >= 0 && !puzzleData.grid[r][c].isBlack) c--;
             c++;
@@ -591,6 +588,5 @@ document.addEventListener('DOMContentLoaded', () => {
             checkWin();
         }
     });
-
     init();
 });
