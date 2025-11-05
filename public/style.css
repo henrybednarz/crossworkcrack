@@ -61,7 +61,9 @@ body {
     flex: 1 1 360px;
 }
 
-#controls {
+.controls {
+    display:flex;
+    align-items: center;
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--font-color);
@@ -389,6 +391,8 @@ body {
     .controls {
         width: 30%;
         font-size: 1rem;
+        display:flex;
+        align-items: center;
         font-weight: bold;
         color: var(--font-color);
     }
