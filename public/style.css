@@ -238,7 +238,6 @@ body {
     max-width: 480px; /* Increased max-width slightly */
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
     position: relative;
 }
 
@@ -268,8 +267,8 @@ body {
     display: flex;
     font-weight: bold;
     font-size: 1.1rem;
+    margin-bottom: 0;
     border-bottom: 2px solid var(--active-word-bg);
-    padding-bottom: 0.5rem;
     color: var(--leaderboard-accent);
 }
 
@@ -283,6 +282,7 @@ body {
     align-items: center;
     font-size: 1.05rem;
     padding: 0.5rem 0;
+    margin: 0;
     border-bottom: 1px solid var(--active-word-bg);
 }
 
