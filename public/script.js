@@ -85,6 +85,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+    gridContainer.addEventListener('click', (e) => {
+        if (!isGameStarted) return;
+
+        const target = e.target.closest('.grid-cell');
+
+        if (target && !target.classList.contains('black')) {
+            const row = parseInt(target.dataset.row, 10);
+            const col = parseInt(target.dataset.col, 10);
+
+            if (activeCell.row === row && activeCell.col === col) {
+                direction = (direction === 'across') ? 'down' : 'across';
+            } else {
+                activeCell = { row, col };
+            }
+            updateActiveHighlights();
+        }
+    });
 
     async function init() {
         try {
@@ -208,23 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         numberSpan.classList.add('cell-number');
                         cell.appendChild(numberSpan);
                     }
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.readOnly = true;
-                    input.maxLength = 1;
-                    input.classList.add('cell-input');
-                    input.dataset.row = r;
-                    input.dataset.col = c;
 
+                    // CHANGED: Create a DIV instead of an INPUT
+                    const cellContent = document.createElement('div');
+                    cellContent.classList.add('cell-content');
+
+                    // Set initial content from state
                     if (userGrid[r] && userGrid[r][c]) {
-                        input.value = userGrid[r][c];
+                        cellContent.textContent = userGrid[r][c];
                     }
 
-                    input.addEventListener('input', () => {
-                        userGrid[r][c] = input.value.toUpperCase();
-                        saveCachedState();
-                    });
-                    cell.appendChild(input);
+                    cell.appendChild(cellContent);
                 }
                 gridContainer.appendChild(cell);
             });
@@ -267,14 +278,17 @@ document.addEventListener('DOMContentLoaded', () => {
             leaderboardList.appendChild(empty)
         } else {
             leaderboardData
-            .forEach((entry, idx) => {
+                .forEach((entry, idx) => {
                 const li = document.createElement('li');
                 if (playerName && entry.name === playerName) {
                     li.classList.add('current-player');
                 }
+
+                const winsDisplay = entry.wins > 0 ? ` (👑 x ${entry.wins})` : '';
+
                 li.innerHTML = `
-                    <span class="rank">${idx + 1}</span>
-                    <span class="name">${entry.name}</span>
+                    <span class="rank">${idx + 1}.</span>
+                    <span class="name">${entry.name + winsDisplay}</span>
                     <span class="time">${formatTime(entry.time_taken)}</span>
                 `;
                 leaderboardList.appendChild(li);
@@ -284,19 +298,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- GAME LOGIC & EVENT HANDLERS ---
-    gridContainer.addEventListener('click', (e) => {
-        if (!isGameStarted) return;
-        const target = e.target.closest('.grid-cell');
-        if (target && !target.classList.contains('black')) {
-            const row = parseInt(target.dataset.row);
-            const col = parseInt(target.dataset.col);
+    document.addEventListener('keydown', (e) => {
+        if (isGameFinished || !isGameStarted) return;
 
-            if (activeCell.row === row && activeCell.col === col) {
-                direction = (direction === 'across') ? 'down' : 'across';
+        // Check if modifier keys are pressed (Cmd, Ctrl, Alt, Meta) to allow browser shortcuts
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        const { row, col } = activeCell;
+        // Helper to get the visual element for the active cell
+        const getCellContent = (r, c) => {
+            const cell = document.querySelector(`.grid-cell[data-row='${r}'][data-col='${c}'] .cell-content`);
+            return cell;
+        };
+
+        // Letter input
+        if (e.key.match(/^[a-zA-Z]$/)) {
+            e.preventDefault();
+            const char = e.key.toUpperCase();
+
+            // Update State
+            userGrid[row][col] = char;
+
+            // Update DOM
+            const cellContent = getCellContent(row, col);
+            if (cellContent) cellContent.textContent = char;
+
+            moveFocus(1);
+            checkWin();
+        }
+        // Backspace
+        else if (e.key === 'Backspace') {
+            e.preventDefault();
+            if (userGrid[row][col] === '') {
+                // If current cell is empty, move back and delete previous
+                moveFocus(-1);
+                // Re-fetch active cell after move
+                const newRow = activeCell.row;
+                const newCol = activeCell.col;
+
+                userGrid[newRow][newCol] = '';
+                const prevCellContent = getCellContent(newRow, newCol);
+                if (prevCellContent) prevCellContent.textContent = '';
             } else {
-                activeCell = { row, col };
+                // Just delete current cell
+                userGrid[row][col] = '';
+                const cellContent = getCellContent(row, col);
+                if (cellContent) cellContent.textContent = '';
             }
-            updateActiveHighlights();
+        }
+        // Navigation (Tab and Arrows remain largely the same logic, just removing input refs if any)
+        else if (e.key === 'Tab') {
+            e.preventDefault();
+            moveFocus(e.shiftKey ? -1 : 1);
+        }
+        else if (e.key.startsWith('Arrow')) {
+            e.preventDefault();
+            let newRow = row, newCol = col;
+            if (e.key === 'ArrowUp') newRow--;
+            if (e.key === 'ArrowDown') newRow++;
+            if (e.key === 'ArrowLeft') newCol--;
+            if (e.key === 'ArrowRight') newCol++;
+
+            if(isValidCell(newRow, newCol)) {
+                activeCell = { row: newRow, col: newCol };
+                updateActiveHighlights();
+            }
         }
     });
 
@@ -437,7 +503,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeCellEl = document.querySelector(`.grid-cell[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
         if(activeCellEl) {
             activeCellEl.classList.add('active');
-            // activeCellEl.querySelector('input')?.focus({ preventScroll: true });
+            // REMOVED: activeCellEl.querySelector('input')?.focus(...)
+            // We no longer focus inputs, preventing the keyboard popup.
         }
 
         const wordCells = getWordCells(activeCell.row, activeCell.col, direction);
@@ -558,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const customKeyboard = document.getElementById('custom-keyboard');
 
     customKeyboard.addEventListener('click', (e) => {
-        // Only respond to clicks on the buttons themselves
         const keyButton = e.target.closest('.keyboard-key');
         if (!keyButton) return;
 
@@ -566,24 +632,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const key = keyButton.dataset.key;
         const { row, col } = activeCell;
-        const inputEl = document.querySelector(`input[data-row='${row}'][data-col='${col}']`);
+
+        const getCellContent = (r, c) => document.querySelector(`.grid-cell[data-row='${r}'][data-col='${c}'] .cell-content`);
 
         if (key === 'Backspace') {
-            if (inputEl.value === '') {
+            if (userGrid[row][col] === '') {
                 moveFocus(-1);
-                // After moving, get the new active cell's input
-                const prevInputEl = document.querySelector(`input[data-row='${activeCell.row}'][data-col='${activeCell.col}']`);
-                if (prevInputEl) {
-                    prevInputEl.value = '';
-                    userGrid[activeCell.row][activeCell.col] = '';
-                }
+                // Delete content of the *new* active cell
+                const newRow = activeCell.row;
+                const newCol = activeCell.col;
+                userGrid[newRow][newCol] = '';
+                const prevCell = getCellContent(newRow, newCol);
+                if (prevCell) prevCell.textContent = '';
             } else {
-                inputEl.value = '';
                 userGrid[row][col] = '';
+                const cell = getCellContent(row, col);
+                if (cell) cell.textContent = '';
             }
-        } else if (key.match(/^[A-Z]$/)) { // A letter was pressed
-            inputEl.value = key;
+        } else if (key.match(/^[A-Z]$/)) {
             userGrid[row][col] = key;
+            const cell = getCellContent(row, col);
+            if (cell) cell.textContent = key;
+
             moveFocus(1);
             checkWin();
         }
