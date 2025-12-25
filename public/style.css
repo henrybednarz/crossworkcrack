@@ -434,7 +434,7 @@ body {
         background-color: #d1d5db;
         display: none;
         z-index: 20;
-        padding-bottom: env(safe-area-inset-bottom);
+        padding-bottom: env(titlebar-area-height);
     }
 
     .keyboard-container.visible {
