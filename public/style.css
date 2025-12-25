@@ -29,6 +29,7 @@ body {
     margin: 0;
     padding: var(--header-height) 1rem 1rem;
     min-height: 100vh;
+    touch-action: manipulation;
 }
 
 #game-container {
@@ -475,10 +476,22 @@ body {
 
     .keyboard-key {
         flex: 1;
-        height: 42px; /* Good touch target size */
+        height: 42px;
         font-size: 1.1rem;
         margin: 0;
-        max-width: none; /* Allow keys to stretch */
+        max-width: none;
+
+        -webkit-appearance: none; /* Removes default iOS button styling */
+        appearance: none;
+        border-radius: 4px; /* Enforces your radius */
+        background-color: #fff; /* Enforces white background */
+        color: #111827; /* Enforces text color */
+        padding: 0; /* Removes default iOS padding that offsets text */
+
+        /* Ensure text is perfectly centered */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* 6. MISC UI TWEAKS */
