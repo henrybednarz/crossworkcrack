@@ -213,10 +213,10 @@ body {
 .leaderboard-window {
     display: none;
     position: fixed;
-    top: var(--header-height); /* CHANGED: Use variable */
+    top: var(--header-height);
     left: 0;
     width: 100vw;
-    height: calc(100vh - var(--header-height)); /* CHANGED: Use variable */
+    height: calc(100vh - var(--header-height));
     background: var(--main-bg);
     justify-content: center;
     align-items: flex-start; /* CHANGED: Align to top */
@@ -293,11 +293,11 @@ body {
 }
 /* Generic Modal Styles */
 .modal-overlay {
-    position: fixed;
-    top: var(--header-height); /* CHANGED: Use variable */
+    position: absolute;
+    top: var(--header-height);
     left: 0;
     width: 100%;
-    height: calc(100vh - var(--header-height)); /* CHANGED: Use variable */
+    height: calc(100vh - var(--header-height));
     background-color: rgba(247, 247, 247, 0.9);
     display: none;
     justify-content: center;
