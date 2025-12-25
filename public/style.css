@@ -361,19 +361,19 @@ body {
 }
 
 @media (max-width: 600px) {
-    /* 1. LOCK VIEWPORT: Prevents scroll and accounts for browser bars */
+    /* 1. LOCK LAYOUT: Full height, no scrolling, vertical stack */
     html, body {
-        height: 100dvh; /* Dynamic height adapts to browser bars */
+        height: 100dvh; /* Dynamic viewport height */
         width: 100vw;
-        overflow: hidden; /* No scrolling allowed */
-        position: fixed; /* Locks the app in place */
+        position: fixed; /* Prevents whole-page scrolling */
+        overflow: hidden;
         display: flex;
         flex-direction: column;
         padding: 0;
         margin: 0;
     }
 
-    /* 2. HEADER */
+    /* 2. HEADER: Fixed size at top */
     .header-bar {
         position: relative;
         flex: 0 0 auto;
@@ -381,85 +381,76 @@ body {
         min-height: 3.5rem;
         padding: 0.25rem 1rem;
         z-index: 10;
+        background: var(--leaderboard-bg); /* Ensure opaque background */
     }
 
-    /* 3. GAME AREA: Must constrain the grid */
+    /* 3. GAME CONTAINER: Takes all remaining space */
     #game-container {
-        flex: 1; /* Take remaining space */
+        flex: 1;
         width: 100%;
-        min-height: 0; /* CRITICAL: Allows flex container to shrink past content size */
+        min-height: 0; /* CRITICAL: Allows shrinking past content size */
         padding: 0;
         margin: 0;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    #main-panel {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #crossword-section {
-        flex: 1;
-        width: 100%;
-        height: 100%;
-        display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        min-height: 0; /* Allows shrinking */
+        overflow: hidden; /* Clips anything that tries to overflow */
     }
 
-    /* 4. GRID SCALING: The Fix */
+    #main-panel, #crossword-section {
+        width: 100%;
+        height: 100%;
+        min-height: 0; /* CRITICAL: Pass the shrink capability down */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 5px; /* Small buffer */
+    }
+
+    /* 4. GRID: The "Contain" Fix */
     #grid-container {
         display: grid;
         grid-template-columns: repeat(var(--grid-cols), 1fr);
         grid-template-rows: repeat(var(--grid-rows), 1fr);
 
-        /* Force square aspect ratio */
+        /* Force square shape */
         aspect-ratio: 1 / 1;
 
-        /* Logic: Be as big as possible, but... */
-        width: 100%;
+        /* LOGIC CHANGE: */
+        /* 1. Don't force width to 100%. Set it to auto. */
+        width: auto;
         height: auto;
 
-        /* ...NEVER exceed 95% of the Width OR the available Height */
+        /* 2. Grow until you hit the width limit OR the height limit */
         max-width: 95vw;
-        max-height: 95%;
-
-        /* Fallback for really short screens (like landscape mobile): */
-        max-height: 55vh;
+        max-height: 100%;
 
         gap: 2px;
-        margin: auto; /* Centers the grid in the flexbox */
+        margin: auto;
     }
 
-    /* 5. KEYBOARD */
+    /* 5. KEYBOARD: Pushes up from bottom */
     .keyboard-container {
-        position: relative;
-        flex: 0 0 auto;
+        position: relative; /* In the flow */
+        flex: 0 0 auto; /* Height is determined by keys */
         width: 100%;
         background-color: #d1d5db;
         display: none;
-        z-index: 20;
+        z-index: 50;
 
-        /* Aggressive padding for bottom bar */
-        padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
+        /* Add extra safe padding for bottom swipe bar */
+        padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
     }
 
     .keyboard-container.visible {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        padding-top: 6px;
+        padding-top: 8px;
         padding-left: 2px;
         padding-right: 2px;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
     }
 
     .keyboard-row {
@@ -471,21 +462,26 @@ body {
 
     .keyboard-key {
         flex: 1;
-        height: 42px;
-        font-size: 1.1rem;
+        height: 44px; /* Slightly taller for accuracy */
+        font-size: 1.2rem;
         margin: 0;
         max-width: none;
 
         /* iOS Reset */
         -webkit-appearance: none;
         appearance: none;
-        border-radius: 4px;
-        background-color: #fff;
+        border-radius: 5px;
+        background-color: #f8f8f8;
         color: #111827;
         padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .keyboard-key:active {
+        background-color: #d1d5db;
     }
 
     /* Hide Clues */
@@ -497,12 +493,12 @@ body {
     .controls { width: 35%; font-size: 1rem; }
 
     .cell-number {
-        font-size: clamp(12px, 4vmin, 18px);
+        font-size: clamp(12px, 4vmin, 16px);
         left: 2px;
-        top: 0;
+        top: 1px;
     }
 
     .cell-content {
-        font-size: clamp(22px, 9vmin, 45px);
+        font-size: clamp(20px, 8vmin, 40px);
     }
 }
