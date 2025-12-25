@@ -293,7 +293,7 @@ body {
 }
 /* Generic Modal Styles */
 .modal-overlay {
-    position: absolute;
+    position: fixed;
     top: var(--header-height);
     left: 0;
     width: 100%;
@@ -381,6 +381,11 @@ body {
         min-height: 3.5rem;
         padding: 0.25rem 1rem;
         z-index: 10;
+    }
+
+    .modal-overlay {
+        top: 3.5rem;
+        height: calc(100vh - 3.5rem);
     }
 
     /* 3. GAME AREA: Must constrain the grid */
