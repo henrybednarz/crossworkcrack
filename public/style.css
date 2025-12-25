@@ -415,24 +415,18 @@ body {
         min-height: 0; /* Allows shrinking */
     }
 
-    /* 4. GRID SCALING: The Fix */
     #grid-container {
         display: grid;
         grid-template-columns: repeat(var(--grid-cols), 1fr);
         grid-template-rows: repeat(var(--grid-rows), 1fr);
-
         aspect-ratio: 1 / 1;
-
         width: 100%;
         height: auto;
-
         max-width: 95vw;
         max-height: 55vh;
-
         gap: 2px;
     }
 
-    /* 5. KEYBOARD */
     .keyboard-container {
         position: relative;
         flex: 0 0 auto;
@@ -440,9 +434,7 @@ body {
         background-color: #d1d5db;
         display: none;
         z-index: 20;
-
-        /* Aggressive padding for bottom bar */
-        padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .keyboard-container.visible {
