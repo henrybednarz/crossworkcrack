@@ -360,108 +360,137 @@ body {
 }
 
 @media (max-width: 600px) {
-    :root {
-        --cell-size: calc(95vw / var(--grid-cols));
+    /* 1. LAYOUT STRUCTURE: Stack Header, Game, and Keyboard vertically */
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100svh; /* Use SVH to handle mobile browser address bars */
+        padding: 0;
+        overflow: hidden; /* Prevent scrolling of the whole page */
     }
 
+    /* 2. HEADER: Part of the flow, not fixed */
     .header-bar {
-        min-height: 5vw;
-        padding: 0.25rem 1.5rem;
-        justify-content: space-between;
+        position: relative;
+        flex: 0 0 auto; /* Height determined by content, doesn't shrink */
+        width: 100%;
+        min-height: 3.5rem;
+        padding: 0.25rem 1rem;
+        z-index: 10;
     }
 
-    .header-bar h1 { margin: 0; font-size: 1rem; font-weight: bold; }
-    .header-bar #puzzle-date { margin: 0; font-size: 0.625rem; }
-    .show-leaderboard-btn {
-        font-size: 1rem;
-        width: 0.5rem;
+    /* 3. GAME AREA: Fills all remaining space */
+    #game-container {
+        flex: 1;
+        width: 100%;
+        height: auto; /* Flex controls height */
+        padding: 0;
         margin: 0;
-        padding: 0.125rem;
-    }
-
-    .change-person-btn {
-        font-size: 1rem;
-        width: 0.5rem;
-        margin: 0;
-        padding: 0.125rem;
-    }
-
-    .controls {
-        width: 30%;
-        font-size: 1rem;
-        align-items: center;
-        font-weight: bold;
-        color: var(--font-color);
-    }
-
-    html, body {
-        height: 100svh;
+        display: flex;
+        align-items: center; /* Vertically center the puzzle */
+        justify-content: center; /* Horizontally center the puzzle */
         overflow: hidden;
-    }
-
-    #clues-container {
-        display: none;
     }
 
     #main-panel {
         width: 100%;
-        align-items: flex-start;
+        height: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
         justify-content: center;
     }
 
-    #game-container {
+    #crossword-section {
+        flex: 1;
+        width: 100%;
+        height: 100%;
         display: flex;
-        align-items: flex-start;
-        height: calc(100svh - var(--header-height));
-        padding-top: 0;
+        align-items: center;
+        justify-content: center;
     }
 
-    .cell-input {
-        font-size: max(calc(var(--cell-size) / 2), 16px);
+    /* 4. PUZZLE GRID: The scaling logic */
+    #grid-container {
+        display: grid;
+        /* Use 1fr to share space equally based on JS variables */
+        grid-template-columns: repeat(var(--grid-cols), 1fr);
+        grid-template-rows: repeat(var(--grid-rows), 1fr);
+
+        /* Key scaling rules: */
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1; /* Force it to stay square */
+
+        /* Limits to ensure it never gets cut off */
+        max-width: 95vw;
+        max-height: 98%;
+
+        gap: 2px;
     }
 
-    #main-panel.active ~ .keyboard-container {
-        display: flex;
+    .grid-cell {
+        width: auto;  /* Let grid track sizing handle it */
+        height: auto;
+        position: relative;
     }
-    #main-panel.active ~ .keyboard-container {
-        display: flex;
+
+    /* Adjust font sizes for the scalable grid */
+    .cell-number {
+        font-size: clamp(16px, 4vmin, 24px);
+        left: 2px;
+        top: 1px;
     }
+
+    .cell-content {
+        font-size: clamp(22px, 9vmin, 45px);
+    }
+
+    /* 5. KEYBOARD: Pushes up from the bottom */
     .keyboard-container {
-        display: none;
+        position: relative; /* Not fixed, so it pushes content up */
+        flex: 0 0 auto; /* Don't shrink */
+        width: 100%;
+        background-color: #d1d5db;
+        display: none; /* Hidden by default */
+        z-index: 20;
+        padding-bottom: 5px; /* Tiny padding */
     }
 
+    /* When JS adds .visible, it becomes a flex item */
     .keyboard-container.visible {
         display: flex;
-        padding-bottom: 1rem;
+        flex-direction: column;
+        gap: 4px;
+        padding: 6px 2px;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
     }
 
     .keyboard-row {
         display: flex;
         justify-content: center;
-        gap: 4px;
+        width: 100%;
+        gap: 3px;
     }
 
     .keyboard-key {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        font-size: 16px;
-        font-weight: 600;
-        height: 40px;
         flex: 1;
-        max-width: 35px;
-        border: none;
-        border-radius: 4px;
-        background-color: #ffffff;
-        color: #111827;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
+        height: 42px; /* Good touch target size */
+        font-size: 1.1rem;
+        margin: 0;
+        max-width: none; /* Allow keys to stretch */
     }
 
-    .keyboard-key:active {
-        background-color: #a7d8ff;
+    /* 6. MISC UI TWEAKS */
+    #clues-container {
+        display: none; /* Hide clues list on mobile */
     }
 
-    .special-key {
-        flex: 1.5;
+    .controls {
+        width: 35%;
+        font-size: 1rem;
     }
+
+    .header-bar h1 { font-size: 1rem; }
+    .header-bar #puzzle-date { font-size: 0.7rem; }
 }
