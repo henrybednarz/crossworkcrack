@@ -361,42 +361,44 @@ body {
 }
 
 @media (max-width: 600px) {
-    /* 1. LAYOUT STRUCTURE: Stack Header, Game, and Keyboard vertically */
-    body {
+    /* 1. LOCK VIEWPORT: Prevents scroll and accounts for browser bars */
+    html, body {
+        height: 100dvh; /* Dynamic height adapts to browser bars */
+        width: 100vw;
+        overflow: hidden; /* No scrolling allowed */
+        position: fixed; /* Locks the app in place */
         display: flex;
         flex-direction: column;
-        height: 100svh; /* Use SVH to handle mobile browser address bars */
         padding: 0;
-        overflow: hidden; /* Prevent scrolling of the whole page */
+        margin: 0;
     }
 
-    /* 2. HEADER: Part of the flow, not fixed */
+    /* 2. HEADER */
     .header-bar {
         position: relative;
-        flex: 0 0 auto; /* Height determined by content, doesn't shrink */
+        flex: 0 0 auto;
         width: 100%;
         min-height: 3.5rem;
         padding: 0.25rem 1rem;
         z-index: 10;
     }
 
-    /* 3. GAME AREA: Fills all remaining space */
+    /* 3. GAME AREA: Must constrain the grid */
     #game-container {
-        flex: 1;
+        flex: 1; /* Take remaining space */
         width: 100%;
-        height: auto; /* Flex controls height */
+        min-height: 0; /* CRITICAL: Allows flex container to shrink past content size */
         padding: 0;
         margin: 0;
         display: flex;
-        align-items: center; /* Vertically center the puzzle */
-        justify-content: center; /* Horizontally center the puzzle */
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
     }
 
     #main-panel {
         width: 100%;
         height: 100%;
-        margin: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -407,61 +409,56 @@ body {
         width: 100%;
         height: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        min-height: 0; /* Allows shrinking */
     }
 
-    /* 4. PUZZLE GRID: The scaling logic */
+    /* 4. GRID SCALING: The Fix */
     #grid-container {
         display: grid;
-        /* Use 1fr to share space equally based on JS variables */
         grid-template-columns: repeat(var(--grid-cols), 1fr);
         grid-template-rows: repeat(var(--grid-rows), 1fr);
 
-        /* Key scaling rules: */
+        /* Force square aspect ratio */
+        aspect-ratio: 1 / 1;
+
+        /* Logic: Be as big as possible, but... */
         width: 100%;
         height: auto;
-        aspect-ratio: 1 / 1; /* Force it to stay square */
 
-        /* Limits to ensure it never gets cut off */
+        /* ...NEVER exceed 95% of the Width OR the available Height */
         max-width: 95vw;
-        max-height: 98%;
+        max-height: 95%;
+
+        /* Fallback for really short screens (like landscape mobile): */
+        max-height: 55vh;
 
         gap: 2px;
+        margin: auto; /* Centers the grid in the flexbox */
     }
 
-    .grid-cell {
-        width: auto;  /* Let grid track sizing handle it */
-        height: auto;
-        position: relative;
-    }
-
-    /* Adjust font sizes for the scalable grid */
-    .cell-number {
-        font-size: clamp(16px, 4vmin, 24px);
-        left: 2px;
-        top: 1px;
-    }
-
-    .cell-content {
-        font-size: clamp(22px, 9vmin, 45px);
-    }
-
-    /* 5. KEYBOARD: Pushes up from the bottom */
+    /* 5. KEYBOARD */
     .keyboard-container {
-        position: relative; /* Not fixed, so it pushes content up */
-        flex: 0 0 auto; /* Don't shrink */
+        position: relative;
+        flex: 0 0 auto;
         width: 100%;
         background-color: #d1d5db;
-        display: none; /* Hidden by default */
+        display: none;
         z-index: 20;
-        padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+
+        /* Aggressive padding for bottom bar */
+        padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
     }
 
     .keyboard-container.visible {
         display: flex;
         flex-direction: column;
         gap: 4px;
+        padding-top: 6px;
+        padding-left: 2px;
+        padding-right: 2px;
         box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
     }
 
@@ -479,29 +476,33 @@ body {
         margin: 0;
         max-width: none;
 
-        -webkit-appearance: none; /* Removes default iOS button styling */
+        /* iOS Reset */
+        -webkit-appearance: none;
         appearance: none;
-        border-radius: 4px; /* Enforces your radius */
-        background-color: #fff; /* Enforces white background */
-        color: #111827; /* Enforces text color */
-        padding: 0; /* Removes default iOS padding that offsets text */
-
-        /* Ensure text is perfectly centered */
+        border-radius: 4px;
+        background-color: #fff;
+        color: #111827;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    /* 6. MISC UI TWEAKS */
-    #clues-container {
-        display: none; /* Hide clues list on mobile */
-    }
+    /* Hide Clues */
+    #clues-container { display: none; }
 
-    .controls {
-        width: 35%;
-        font-size: 1rem;
-    }
-
+    /* Text Sizes */
     .header-bar h1 { font-size: 1rem; }
     .header-bar #puzzle-date { font-size: 0.7rem; }
+    .controls { width: 35%; font-size: 1rem; }
+
+    .cell-number {
+        font-size: clamp(12px, 4vmin, 18px);
+        left: 2px;
+        top: 0;
+    }
+
+    .cell-content {
+        font-size: clamp(22px, 9vmin, 45px);
+    }
 }
