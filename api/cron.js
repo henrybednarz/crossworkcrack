@@ -14,7 +14,7 @@ export default async function handler(req, res) {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15',
                 'Referer': 'https://www.nytimes.com/crosswords/game/mini',
-                'Cookie': 'NYT-S=0^CB0SMQi6p7q8BhDotM3GBhoSMS0aaZRb5EXXDJPM3frt7ptEIIjWiWwqAh5DOI-95qwGQgAaQIQhnarSerGUdMIgPUmRmMoc3uaBTI5EsPWT2rY-Y6h3ojv6rbLDm63Y023_Pzl3PUXEGN75B3BbfljXpDj3SAI'
+                'Cookie': 'NYT-S=0^CB8SMQiJ__HMBhCBgPLMBhoSMS113l4KE-L7ynQ8NAzSIjjqIIjWiWwqAh5DOI-95qwGQgAaQLtP5eWDbuboUXVp32501mtpzh5TcT7eaC75-rYQHNHvTHzgxRUiyQt-94NX-IXs435FCJf6rcsdq3FtkjxBOgQ='
             }
         });
 
