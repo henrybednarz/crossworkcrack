@@ -5,7 +5,7 @@ export default function Header({ date, seconds, onToggleLeaderboard, onTogglePla
     return (
         <header className="header-bar">
             <div className="header-title">
-                <h1>Who (tf) paywalled the mini?</h1>
+                <h1>who (tf) paywalled the mini?</h1>
                 <p className="puzzle-date">{date}</p>
             </div>
             <div className="header-controls">
