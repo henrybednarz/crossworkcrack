@@ -1,4 +1,5 @@
 import db from "../../db";
+import { avatarUrl } from "../../s3";
 
 export default async function handler(req, res) {
     const {query: {date}, method} = req;
@@ -28,14 +29,19 @@ export default async function handler(req, res) {
                 SELECT
                     l.name,
                     l.time_taken,
-                    COALESCE(uw.win_count, 0) as wins
+                    COALESCE(uw.win_count, 0) as wins,
+                    p.avatar_updated_at
                 FROM leaderboard l
                          LEFT JOIN UserWins uw ON l.name = uw.name
+                         LEFT JOIN players p ON l.name = p.name
                 WHERE l.puzzle_date = $1
                 ORDER BY l.time_taken ASC
             `;
             const { rows } = await db.query(query, [date]);
-            res.status(200).json(rows);
+            res.status(200).json(rows.map(({ avatar_updated_at, ...row }) => ({
+                ...row,
+                avatar_url: avatarUrl(row.name, avatar_updated_at),
+            })));
         } catch (err) {
             console.error(`Error fetching leaderboard for date ${date}:`, err);
             res.status(500).json({ error: 'Error fetching from leaderboard database' });

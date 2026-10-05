@@ -1,0 +1,179 @@
+.leaderboard-window {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    height: calc(100dvh - var(--header-height));
+    background: var(--main-bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 0;
+    overflow-y: auto;
+    z-index: 5000;
+}
+
+.leaderboard-content {
+    background: var(--leaderboard-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.leaderboard-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.leaderboard-title h2 { margin: 0; }
+
+.leaderboard-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.7rem;
+    background: transparent;
+    color: var(--font-color);
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0;
+    line-height: 1;
+}
+
+.leaderboard-header {
+    display: flex;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-bottom: 2px solid var(--active-word-bg);
+    color: var(--leaderboard-accent);
+}
+
+.leaderboard-header .rank-col { width: 60px; }
+.leaderboard-header .name-col { flex: 1; }
+.leaderboard-header .time-col { width: 80px; text-align: right; }
+
+.leaderboard-list { list-style: none; padding: 0; margin: 0; }
+
+.leaderboard-list li {
+    display: flex;
+    align-items: center;
+    font-size: 1.05rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--active-word-bg);
+}
+
+.leaderboard-list .rank { width: 60px; font-weight: bold; }
+.leaderboard-list .name {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-wrap: anywhere;
+}
+.leaderboard-list .time { width: 80px; text-align: right; font-family: monospace; }
+
+.leaderboard-list li.current-player {
+    font-weight: bold;
+    border-bottom: 1px solid var(--font-color);
+}
+
+.leaderboard-message { margin: 1rem 0 0; }
+
+@media (max-width: 600px) {
+    .leaderboard-window { padding: 1rem 0; }
+    .leaderboard-content { padding: 1.5rem; }
+}
+
+/* Podium: top three, first place centered and raised. */
+.podium {
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.podium-spot {
+    flex: 1;
+    max-width: 130px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.podium-avatar {
+    position: relative;
+    margin-bottom: 0.4rem;
+}
+
+.podium-avatar .avatar {
+    border: 3px solid var(--podium-color);
+}
+
+.podium-1 .podium-avatar .avatar {
+    width: 88px;
+    height: 88px;
+    font-size: 2.2rem;
+}
+
+.podium-crown {
+    position: absolute;
+    top: -1.6rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    font-size: 2rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.podium-name {
+    font-weight: bold;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.podium-time { font-family: monospace; font-size: 1.05rem; }
+.podium-wins { font-size: 0.8rem; opacity: 0.75; }
+
+.podium-step {
+    width: 100%;
+    margin-top: 0.4rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.4rem;
+    border-radius: 6px 6px 0 0;
+    background: var(--podium-color);
+    color: #222;
+}
+
+.podium-rank { font-size: 1.4rem; font-weight: bold; }
+
+.podium-1 { --podium-color: #f5c542; }
+.podium-2 { --podium-color: #c0c4cc; }
+.podium-3 { --podium-color: #d39a62; }
+
+.podium-1 .podium-step { height: 80px; }
+.podium-2 .podium-step { height: 56px; }
+.podium-3 .podium-step { height: 40px; }
+
+.podium-spot.current-player .podium-name { color: var(--leaderboard-accent); }
+
+@media (max-width: 600px) {
+    .podium-1 .podium-avatar .avatar { width: 76px; height: 76px; }
+    .podium-avatar .avatar-md { width: 56px; height: 56px; }
+}

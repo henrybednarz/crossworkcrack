@@ -1,0 +1,27 @@
+.avatar-capture-preview {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.avatar-capture-video {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    background: var(--black-cell-bg);
+}
+
+.avatar-capture-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar-capture-actions > button + button { margin-top: 0.75rem; }
+
+.modal-content .avatar-capture-message {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    color: #b00020;
+}

@@ -1,0 +1,61 @@
+.game-container {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.main-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.2rem;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.crossword-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 1 360px;
+}
+
+.clues-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex: 1 1 300px;
+    min-width: 280px;
+    max-width: 100%;
+}
+
+@media (max-width: 600px) {
+    .game-container {
+        flex: 1;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .main-panel {
+        width: 100%;
+        height: 100%;
+        align-items: center;
+    }
+
+    .crossword-section {
+        flex: 1;
+        height: 100%;
+        justify-content: center;
+        min-height: 0;
+        container-type: size;
+    }
+
+    /* The active clue bar above the keyboard replaces the lists on phones. */
+    .clues-container { display: none; }
+}

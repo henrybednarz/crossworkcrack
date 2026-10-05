@@ -1,0 +1,65 @@
+.header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: var(--header-height);
+    z-index: 6000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1.5rem;
+    background: var(--leaderboard-bg);
+    color: var(--font-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.header-title {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.header-title h1 { margin: 0; font-size: 2rem; font-weight: bold; }
+.header-title .puzzle-date { margin: 0; font-size: 1rem; }
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.timer {
+    margin-right: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.header-icon-btn {
+    padding: 4px 6px;
+    font-size: 1.5rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+}
+
+.header-icon-btn:hover { text-shadow: 0 0 2px var(--accent-color); }
+
+@media (max-width: 600px) {
+    .header-bar {
+        position: relative;
+        flex: 0 0 auto;
+        padding: 0.25rem 1rem;
+        z-index: 10;
+    }
+
+    .header-title h1 { font-size: 1rem; }
+    .header-title .puzzle-date { font-size: 0.7rem; }
+    .header-controls { font-size: 1rem; }
+    .timer { margin-right: 0.25rem; }
+    .header-icon-btn { font-size: 1.3rem; }
+}

@@ -1,0 +1,100 @@
+/* Touch devices wider than a phone: keyboard floats over the bottom of the page. */
+.keyboard-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 3000;
+}
+
+.clue-bar-dock,
+.keyboard-keys {
+    background-color: #d1d5db;
+}
+
+.clue-bar-dock {
+    padding: 6px 2px 4px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clue-bar-dock .active-clue-bar {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.keyboard-keys {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 2px calc(env(safe-area-inset-bottom) + 7vh + 8px);
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    gap: 3px;
+}
+
+.keyboard-key {
+    flex: 1;
+    height: 48px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #111827;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.keyboard-key:active { background-color: #e5e7eb; }
+
+.keyboard-key.special-key {
+    flex: 1.5;
+    background-color: #adb3bc;
+}
+
+/* Phones: keyboard is the last row of the locked flex column, pinned to the bottom. */
+@media (max-width: 600px) {
+    .keyboard-container {
+        position: relative;
+        flex: 0 0 auto;
+        z-index: 20;
+    }
+
+    /*
+     * Reserves room for a three-line clue. The dock is anchored to the bottom of
+     * the slot, so a shorter clue leaves a gap above it and a longer one grows
+     * upward over the page, without changing the slot's (and the grid's) size.
+     */
+    .clue-bar-slot {
+        position: relative;
+        height: var(--clue-bar-reserve, 6rem);
+    }
+
+    .clue-bar-dock {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .keyboard-key { height: 42px; }
+}
