@@ -114,3 +114,6 @@
 }
 
 .player-modal .player-stats-message { margin: 1.5rem 0 0.75rem; }
+
+/* Opened from the leaderboard, so it has to sit above it. */
+.player-profile-modal { z-index: 5001; }

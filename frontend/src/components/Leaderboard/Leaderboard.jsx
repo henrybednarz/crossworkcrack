@@ -1,10 +1,22 @@
+import { useCallback, useState } from 'react';
+import { PlayerProfileModal } from '../PlayerModal';
 import LeaderboardRow from './LeaderboardRow.jsx';
 import Podium from './Podium.jsx';
 import './Leaderboard.css';
 
 const PODIUM_SIZE = 3;
 
-export default function Leaderboard({ entries, playerName, loading, error, onClose }) {
+export default function Leaderboard({ entries, playerName, loading, error, onViewOwnProfile, onClose }) {
+    // Entry whose read-only profile card is open. Local, so it resets whenever the leaderboard closes.
+    const [viewedPlayer, setViewedPlayer] = useState(null);
+    const closeProfile = useCallback(() => setViewedPlayer(null), []);
+
+    // Your own name opens your editable profile; anyone else's opens a read-only card.
+    const handleSelectPlayer = (entry) => {
+        if (entry.name === playerName) onViewOwnProfile();
+        else setViewedPlayer(entry);
+    };
+
     let body;
     if (error && entries.length === 0) {
         body = <p className="leaderboard-message">Couldn&apos;t load the leaderboard.</p>;
@@ -16,7 +28,7 @@ export default function Leaderboard({ entries, playerName, loading, error, onClo
         const rest = entries.slice(PODIUM_SIZE);
         body = (
             <>
-                <Podium entries={entries.slice(0, PODIUM_SIZE)} playerName={playerName} />
+                <Podium entries={entries.slice(0, PODIUM_SIZE)} playerName={playerName} onSelect={handleSelectPlayer} />
                 {rest.length > 0 && (
                     <>
                         <div className="leaderboard-header">
@@ -31,6 +43,7 @@ export default function Leaderboard({ entries, playerName, loading, error, onClo
                                     rank={idx + PODIUM_SIZE + 1}
                                     entry={entry}
                                     isCurrentPlayer={Boolean(playerName) && entry.name === playerName}
+                                    onSelect={handleSelectPlayer}
                                 />
                             ))}
                         </ol>
@@ -51,6 +64,9 @@ export default function Leaderboard({ entries, playerName, loading, error, onClo
                 </div>
                 {body}
             </div>
+            {viewedPlayer && (
+                <PlayerProfileModal name={viewedPlayer.name} avatarUrl={viewedPlayer.avatar_url} onClose={closeProfile} />
+            )}
         </div>
     );
 }

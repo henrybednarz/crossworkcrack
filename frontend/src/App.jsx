@@ -97,6 +97,11 @@ export default function App() {
         }
     };
 
+    const handleViewOwnProfile = () => {
+        setLeaderboardOpen(false);
+        setPlayerPanelOpen(true);
+    };
+
     const handleSolve = () => {
         setStatus('finished');
         setHasWon(true);
@@ -155,6 +160,7 @@ export default function App() {
                     playerName={playerName}
                     loading={leaderboard.loading || leaderboard.submitting}
                     error={leaderboard.error}
+                    onViewOwnProfile={handleViewOwnProfile}
                     onClose={() => setLeaderboardOpen(false)}
                 />
             )}
