@@ -28,7 +28,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 0 2px calc(env(safe-area-inset-bottom) + 7vh + 8px);
+    padding: 0 2px calc(env(safe-area-inset-bottom) + 8px);
 }
 
 .keyboard-row {
