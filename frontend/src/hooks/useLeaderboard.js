@@ -14,7 +14,8 @@ export function useLeaderboard(date) {
     const submitScore = useCallback(
         async (name, seconds) => {
             const result = await mutate({ name, puzzle_date: date, time_taken: seconds });
-            if (result) refetch();
+            // Refetch even if rejected (already submitted), so the board shows the score that stands.
+            refetch();
             return result;
         },
         [mutate, refetch, date]

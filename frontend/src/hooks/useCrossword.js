@@ -3,6 +3,7 @@ import { readStorage, writeStorage } from '../utils/storage.js';
 import {
     ACROSS,
     createEmptyGrid,
+    createSolvedGrid,
     findAdjacentClue,
     findArrowTarget,
     findNextCell,
@@ -67,6 +68,8 @@ function reducer(state, action) {
             const activeClue = getActiveClue(state.puzzle, getWordCells(puzzleGrid, active, direction), direction);
             return moveTo(state, findAdjacentClue(state.puzzle, userGrid, activeClue, action.delta));
         }
+        case 'reveal':
+            return { ...state, userGrid: createSolvedGrid(puzzleGrid) };
         case 'arrow': {
             const target = findArrowTarget(puzzleGrid, active, action.key);
             return target ? { ...state, active: target } : state;
@@ -102,6 +105,7 @@ export function useCrossword(puzzle, storageKey) {
             backspace: () => dispatch({ type: 'backspace' }),
             changeClue: (delta) => dispatch({ type: 'changeClue', delta }),
             arrow: (key) => dispatch({ type: 'arrow', key }),
+            reveal: () => dispatch({ type: 'reveal' }),
         }),
         []
     );

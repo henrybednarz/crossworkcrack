@@ -52,20 +52,19 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid or missing name, puzzle_date, or time_taken.' });
         }
 
+        // One attempt per player per day: the first submitted score is final.
         try {
             const query = `
                 INSERT INTO leaderboard (name, puzzle_date, time_taken)
                 VALUES ($1, $2, $3)
-                ON CONFLICT (name, puzzle_date)
-                DO UPDATE SET time_taken = EXCLUDED.time_taken
-                WHERE leaderboard.time_taken > EXCLUDED.time_taken;
+                ON CONFLICT (name, puzzle_date) DO NOTHING;
             `;
             const values = [name.trim(), puzzle_date, time_taken];
             const result = await db.query(query, values);
             if (result.rowCount > 0) {
                 res.status(201).json({ message: 'Score saved successfully!' });
             } else {
-                res.status(200).json({ message: 'A better score already exists.' });
+                res.status(409).json({ error: 'A score for this puzzle has already been submitted.' });
             }
         } catch (err) {
             console.error('Error posting score:', err);

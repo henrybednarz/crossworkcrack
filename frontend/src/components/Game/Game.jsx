@@ -10,7 +10,7 @@ import './Game.css';
 
 const noop = () => {};
 
-export default function Game({ puzzle, interactive, showKeyboard, onSolve }) {
+export default function Game({ puzzle, interactive, showKeyboard, revealed, onSolve }) {
     const { userGrid, active, wordCells, activeClue, solved, actions } = useCrossword(puzzle, STORAGE_KEYS.grid);
 
     useKeyboardInput(actions, interactive);
@@ -23,6 +23,10 @@ export default function Game({ puzzle, interactive, showKeyboard, onSolve }) {
     useEffect(() => {
         if (interactive && solved) onSolveRef.current();
     }, [interactive, solved]);
+
+    useEffect(() => {
+        if (revealed) actions.reveal();
+    }, [revealed, actions]);
 
     const handleVirtualKey = (key) => {
         if (!interactive) return;

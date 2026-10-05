@@ -17,6 +17,10 @@ export function createEmptyGrid(puzzleGrid) {
     return puzzleGrid.map((row) => row.map((cell) => (cell.isBlack ? null : '')));
 }
 
+export function createSolvedGrid(puzzleGrid) {
+    return puzzleGrid.map((row) => row.map((cell) => (cell.isBlack ? null : cell.answer)));
+}
+
 export function isValidSavedGrid(saved, puzzleGrid) {
     return (
         Array.isArray(saved) &&

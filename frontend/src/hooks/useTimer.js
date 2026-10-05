@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useLocalStorage } from './useLocalStorage.js';
 
 // Ticks once per second while `running`; the count survives reloads.
@@ -11,5 +11,7 @@ export function useTimer({ running, storageKey }) {
         return () => clearInterval(id);
     }, [running, setSeconds]);
 
-    return Number(seconds) || 0;
+    const reset = useCallback(() => setSeconds(0), [setSeconds]);
+
+    return { seconds: Number(seconds) || 0, reset };
 }
